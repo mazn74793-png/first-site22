@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>إدارة المنتجات</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:"Cairo",Arial;
+      background:linear-gradient(135deg,#0b1220,#020617);
+      color:#e8eefc;min-height:100vh;padding:18px
+    }
+    .wrap{max-width:980px;margin:0 auto}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .pill{
+      display:inline-block;padding:6px 10px;border-radius:999px;
+      background:rgba(59,130,246,.16);border:1px solid rgba(59,130,246,.30)
+    }
+    .card{
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;padding:16px;margin-top:14px;
+      box-shadow:0 16px 36px rgba(0,0,0,.25)
+    }
+    .muted{color:#cdd7f3}
+    .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media (max-width:860px){.row{grid-template-columns:1fr}}
+    label{display:block;margin:0 0 6px}
+    input,button{font-family:"Cairo",Arial}
+    input{
+      width:100%;padding:12px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.2);color:#e8eefc;outline:none
+    }
+    .btn{
+      padding:12px 14px;border-radius:12px;border:0;
+      background:#3b82f6;color:white;font-weight:700;cursor:pointer;
+    }
+    .btn2{
+      padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);
+      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer;
+    }
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.12);text-align:right;vertical-align:top}
+    th{color:#dbe7ff}
+    .smallbtn{
+      padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer
+    }
+    .success{color:#86efac}
+    .danger{color:#fca5a5}
+    .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .bar .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .hint{
+      font-size:13px;line-height:1.7;color:#b7c4e8;
+      border:1px dashed rgba(255,255,255,.18);
+      padding:10px;border-radius:12px;
+      background:rgba(0,0,0,.18)
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="pill">📦 إدارة المنتجات (تجربة تعليمية)</div>
+        <h2 style="margin:10px 0 0">Products</h2>
+        <div class="muted">هنا بتضيف/تعدل/تحذف منتجات، وبعدين تفتح الكاشير بالمنتجات “من غير تخزين”.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="./index.html" style="text-decoration:none"><button class="btn2">⬅ رجوع</button></a>
+        <a id="openCashierA" href="./cashier.html" style="text-decoration:none"><button class="btn">افتح الكاشير</button></a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label class="muted">كود المنتج</label>
+          <input id="code" placeholder="مثال: 1001" inputmode="numeric">
+        </div>
+        <div>
+          <label class="muted">اسم المنتج</label>
+          <input id="name" placeholder="مثال: فلتر زيت">
+        </div>
+        <div>
+          <label class="muted">السعر</label>
+          <input id="price" placeholder="مثال: 85" inputmode="numeric">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button id="addBtn" class="btn">إضافة / تحديث</button>
+        <button id="clearBtn" class="btn2">مسح الخانات</button>
+      </div>
+
+      <div id="msg" class="muted" style="margin-top:10px">—</div>
+
+      <div class="hint" style="margin-top:12px">
+        ✅ بدون LocalStorage: المنتجات <b>هتختفي</b> لو عملت Refresh للصفحة. <br>
+        ✅ الحل: اضغط “افتح الكاشير” عشان يفتح ومعاه المنتجات في اللينك.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="bar">
+        <div class="left">
+          <h3 style="margin:0">قائمة المنتجات</h3>
+          <span class="muted" id="count">0</span>
+        </div>
+        <div class="left">
+          <input id="search" placeholder="بحث بالاسم أو الكود..." style="min-width:240px">
+          <button id="copyLinkBtn" class="btn2">نسخ لينك الكاشير</button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>السعر</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="4" class="muted">مفيش منتجات لسه</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // منتجات افتراضية كبداية (تقدر تمسحهم أو تعدلهم)
+    let products = [
+      { code: "1001", name: "فلتر زيت", price: 85 },
+      { code: "1002", name: "فلتر هوا", price: 120 },
+      { code: "2001", name: "بوجيه", price: 55 },
+      { code: "3001", name: "زيت موتور 1L", price: 180 },
+    ];
+
+    const codeEl = document.getElementById("code");
+    const nameEl = document.getElementById("name");
+    const priceEl = document.getElementById("price");
+    const msgEl = document.getElementById("msg");
+    const tbody = document.getElementById("tbody");
+    const countEl = document.getElementById("count");
+    const searchEl = document.getElementById("search");
+    const openCashierA = document.getElementById("openCashierA");
+    const copyLinkBtn = document.getElementById("copyLinkBtn");
+
+    function show(html, ms=1500){
+      msgEl.innerHTML = html;
+      if(ms>0) setTimeout(()=> msgEl.textContent="—", ms);
+    }
+
+    function money(n){ return Number(n).toFixed(0); }
+
+    function encodeProductsForUrl(list){
+      const json = JSON.stringify(list);
+      const base64 = btoa(unescape(encodeURIComponent(json)));
+      return base64;
+    }
+
+    function cashierUrl(){
+      const encoded = encodeProductsForUrl(products);
+      return "./cashier.html?products=" + encodeURIComponent(encoded);
+    }
+
+    function syncCashierLink(){
+      openCashierA.setAttribute("href", cashierUrl());
+    }
+
+    function render(){
+      const q = (searchEl.value || "").trim().toLowerCase();
+      const filtered = products.filter(p =>
+        p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
+      );
+
+      countEl.textContent = filtered.length;
+
+      tbody.innerHTML = "";
+      if(filtered.length === 0){
+        tbody.innerHTML = '<tr><td colspan="4" class="muted">مفيش منتجات مطابقة</td></tr>';
+      } else {
+        filtered.forEach((p, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${p.code}</td>
+            <td>${p.name}</td>
+            <td>${money(p.price)}</td>
+            <td style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="smallbtn" data-edit="${p.code}">تعديل</button>
+              <button class="smallbtn" data-del="${p.code}">حذف</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // ربط الأزرار
+      tbody.querySelectorAll("button[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const code = btn.getAttribute("data-edit");
+          const p = products.find(x => x.code === code);
+          if(!p) return;
+          codeEl.value = p.code;
+          nameEl.value = p.name;
+          priceEl.value = p.price;
+          show('<span class="success">✅ عدّل البيانات واضغط إضافة/تحديث</span>', 1800);
+        });
+      });
+
+      tbody.querySelectorAll("button[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const code = btn.getAttribute("data-del");
+          products = products.filter(x => x.code !== code);
+          show('<span class="success">تم الحذف ✅</span>', 1200);
+          syncCashierLink();
+          render();
+        });
+      });
+
+      syncCashierLink();
+    }
+
+    document.getElementById("addBtn").addEventListener("click", () => {
+      const code = (codeEl.value || "").trim();
+      const name = (nameEl.value || "").trim();
+      const price = Number((priceEl.value || "").trim());
+
+      if(!code || !name || !Number.isFinite(price) || price <= 0){
+        show('<span class="danger">❌ اكتب كود + اسم + سعر صحيح</span>', 2000);
+        return;
+      }
+
+      const existing = products.find(x => x.code === code);
+      if(existing){
+        existing.name = name;
+        existing.price = price;
+        show('<span class="success">✅ تم التحديث</span>', 1200);
+      } else {
+        products.push({ code, name, price });
+        show('<span class="success">✅ تمت الإضافة</span>', 1200);
+      }
+
+      codeEl.value = "";
+      nameEl.value = "";
+      priceEl.value = "";
+      syncCashierLink();
+      render();
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      codeEl.value = "";
+      nameEl.value = "";
+      priceEl.value = "";
+      show("تم ✅", 800);
+    });
+
+    searchEl.addEventListener("input", render);
+
+    copyLinkBtn.addEventListener("click", async () => {
+      const link = cashierUrl();
+      try{
+        await navigator.clipboard.writeText(new URL(link, location.href).toString());
+        show('<span class="success">✅ تم نسخ لينك الكاشير</span>', 1500);
+      }catch(e){
+        show('<span class="danger">❌ جهازك منع النسخ. افتح الكاشير من زر "افتح الكاشير".</span>', 2200);
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
