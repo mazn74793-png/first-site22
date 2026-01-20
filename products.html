@@ -1,283 +1,329 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>إدارة المنتجات</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
+    :root{
+      --bg:#071426; --card:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.70);
+      --blue:#3b82f6; --red:#ef4444; --shadow:0 18px 60px rgba(0,0,0,.35); --r:20px;
+    }
     *{box-sizing:border-box}
     body{
       margin:0;font-family:"Cairo",Arial;
-      background:linear-gradient(135deg,#0b1220,#020617);
-      color:#e8eefc;min-height:100vh;padding:18px
+      background: radial-gradient(900px 500px at 70% 10%, rgba(59,130,246,.25), transparent 55%),
+                  radial-gradient(700px 500px at 20% 30%, rgba(34,197,94,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);min-height:100vh;padding:18px;
+      display:flex;justify-content:center;align-items:flex-start;
     }
-    .wrap{max-width:980px;margin:0 auto}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .pill{
-      display:inline-block;padding:6px 10px;border-radius:999px;
-      background:rgba(59,130,246,.16);border:1px solid rgba(59,130,246,.30)
-    }
-    .card{
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:16px;padding:16px;margin-top:14px;
-      box-shadow:0 16px 36px rgba(0,0,0,.25)
-    }
-    .muted{color:#cdd7f3}
-    .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    @media (max-width:860px){.row{grid-template-columns:1fr}}
-    label{display:block;margin:0 0 6px}
-    input,button{font-family:"Cairo",Arial}
+    .wrap{width:min(980px,100%)}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;
+      background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.30);font-weight:800}
+    .card{margin-top:14px;background:var(--card);border:1px solid var(--stroke);border-radius:var(--r);
+      box-shadow:var(--shadow);padding:14px;backdrop-filter:blur(12px)}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .field{flex:1;min-width:160px}
+    label{display:block;margin:0 0 6px;font-weight:800;color:var(--muted);font-size:13px}
     input{
-      width:100%;padding:12px;border-radius:12px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.2);color:#e8eefc;outline:none
+      width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);color:var(--text);outline:none
     }
-    .btn{
-      padding:12px 14px;border-radius:12px;border:0;
-      background:#3b82f6;color:white;font-weight:700;cursor:pointer;
+    input:focus{border-color:rgba(59,130,246,.6);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+    button{
+      border:1px solid var(--stroke);background:rgba(255,255,255,.06);color:var(--text);
+      padding:11px 14px;border-radius:14px;font-weight:900;cursor:pointer
     }
-    .btn2{
-      padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);
-      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer;
-    }
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.12);text-align:right;vertical-align:top}
-    th{color:#dbe7ff}
-    .smallbtn{
-      padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
-      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer
-    }
-    .success{color:#86efac}
-    .danger{color:#fca5a5}
-    .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .bar .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .hint{
-      font-size:13px;line-height:1.7;color:#b7c4e8;
-      border:1px dashed rgba(255,255,255,.18);
-      padding:10px;border-radius:12px;
-      background:rgba(0,0,0,.18)
-    }
+    .btn{background:var(--blue);border-color:rgba(59,130,246,.55)}
+    .btnRed{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35)}
+    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;border-radius:16px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.12)}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right;font-size:14px}
+    th{color:rgba(255,255,255,.82);font-size:13px}
+    tr:last-child td{border-bottom:none}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:7px 10px;border-radius:999px}
+    .chipEdit{border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.15)}
+    .chipDel{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.15)}
+    .status{margin-top:10px;min-height:20px;font-weight:900}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
   </style>
+
+  <!-- Supabase + مشروعك + حماية -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase.js"></script>
+  <script src="./guard.js"></script>
 </head>
+
 <body>
   <div class="wrap">
     <div class="top">
-      <div>
-        <div class="pill">📦 إدارة المنتجات (تجربة تعليمية)</div>
-        <h2 style="margin:10px 0 0">Products</h2>
-        <div class="muted">هنا بتضيف/تعدل/تحذف منتجات، وبعدين تفتح الكاشير بالمنتجات “من غير تخزين”.</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a href="./index.html" style="text-decoration:none"><button class="btn2">⬅ رجوع</button></a>
-        <a id="openCashierA" href="./cashier.html" style="text-decoration:none"><button class="btn">افتح الكاشير</button></a>
+      <div class="pill">📦 إدارة المنتجات</div>
+      <div class="row" style="margin-top:0">
+        <a href="./cashier.html"><button>الكاشير</button></a>
+        <a href="./logout.html"><button class="btnRed">تسجيل خروج</button></a>
       </div>
     </div>
 
     <div class="card">
+      <div class="muted">الحساب: <span id="who" class="mono">...</span></div>
+      <div class="status" id="topStatus"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 6px">إضافة / تعديل</h3>
       <div class="row">
-        <div>
-          <label class="muted">كود المنتج</label>
-          <input id="code" placeholder="مثال: 1001" inputmode="numeric">
+        <div class="field">
+          <label>كود</label>
+          <input id="code" placeholder="1001" inputmode="numeric">
         </div>
-        <div>
-          <label class="muted">اسم المنتج</label>
-          <input id="name" placeholder="مثال: فلتر زيت">
-        </div>
-        <div>
-          <label class="muted">السعر</label>
-          <input id="price" placeholder="مثال: 85" inputmode="numeric">
+        <div class="field">
+          <label>الاسم</label>
+          <input id="name" placeholder="فلتر زيت">
         </div>
       </div>
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-        <button id="addBtn" class="btn">إضافة / تحديث</button>
-        <button id="clearBtn" class="btn2">مسح الخانات</button>
+      <div class="row">
+        <div class="field">
+          <label>السعر</label>
+          <input id="price" placeholder="85" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label>المخزون</label>
+          <input id="stock" placeholder="12" inputmode="numeric">
+        </div>
       </div>
-
-      <div id="msg" class="muted" style="margin-top:10px">—</div>
-
-      <div class="hint" style="margin-top:12px">
-        ✅ بدون LocalStorage: المنتجات <b>هتختفي</b> لو عملت Refresh للصفحة. <br>
-        ✅ الحل: اضغط “افتح الكاشير” عشان يفتح ومعاه المنتجات في اللينك.
+      <div class="row">
+        <button class="btn" id="saveBtn" style="flex:1">حفظ</button>
+        <button id="clearBtn" style="flex:1">تفريغ</button>
+      </div>
+      <div class="status" id="formStatus"></div>
+      <div class="muted" style="font-size:13px;line-height:1.7;margin-top:6px">
+        ✅ الكود فريد لكل حساب. لو الكود متكرر هيديك Error.
       </div>
     </div>
 
     <div class="card">
-      <div class="bar">
-        <div class="left">
-          <h3 style="margin:0">قائمة المنتجات</h3>
-          <span class="muted" id="count">0</span>
+      <div class="row" style="align-items:end">
+        <div class="field" style="flex:1.4">
+          <label>بحث</label>
+          <input id="q" placeholder="ابحث بالكود أو الاسم...">
         </div>
-        <div class="left">
-          <input id="search" placeholder="بحث بالاسم أو الكود..." style="min-width:240px">
-          <button id="copyLinkBtn" class="btn2">نسخ لينك الكاشير</button>
-        </div>
+        <button id="refreshBtn">تحديث</button>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>الكود</th>
-            <th>الاسم</th>
-            <th>السعر</th>
-            <th>إجراءات</th>
-          </tr>
-        </thead>
-        <tbody id="tbody">
-          <tr><td colspan="4" class="muted">مفيش منتجات لسه</td></tr>
-        </tbody>
-      </table>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>الكود</th>
+              <th>الاسم</th>
+              <th>السعر</th>
+              <th>المخزون</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="5" class="muted">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="muted" style="margin-top:10px">عدد المنتجات: <b id="count">0</b></div>
+      <div class="status" id="listStatus"></div>
     </div>
   </div>
 
   <script>
-    // منتجات افتراضية كبداية (تقدر تمسحهم أو تعدلهم)
-    let products = [
-      { code: "1001", name: "فلتر زيت", price: 85 },
-      { code: "1002", name: "فلتر هوا", price: 120 },
-      { code: "2001", name: "بوجيه", price: 55 },
-      { code: "3001", name: "زيت موتور 1L", price: 180 },
-    ];
+    const sb = window.sb;
+
+    const who = document.getElementById("who");
+    const topStatus = document.getElementById("topStatus");
 
     const codeEl = document.getElementById("code");
     const nameEl = document.getElementById("name");
     const priceEl = document.getElementById("price");
-    const msgEl = document.getElementById("msg");
+    const stockEl = document.getElementById("stock");
+
+    const saveBtn = document.getElementById("saveBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    const formStatus = document.getElementById("formStatus");
+
+    const qEl = document.getElementById("q");
+    const refreshBtn = document.getElementById("refreshBtn");
     const tbody = document.getElementById("tbody");
     const countEl = document.getElementById("count");
-    const searchEl = document.getElementById("search");
-    const openCashierA = document.getElementById("openCashierA");
-    const copyLinkBtn = document.getElementById("copyLinkBtn");
+    const listStatus = document.getElementById("listStatus");
 
-    function show(html, ms=1500){
-      msgEl.innerHTML = html;
-      if(ms>0) setTimeout(()=> msgEl.textContent="—", ms);
+    let editingId = null;
+
+    function ok(el, msg){ el.style.color="rgba(255,255,255,.9)"; el.textContent = msg||""; }
+    function err(el, msg){ el.style.color="rgba(239,68,68,.95)"; el.textContent = msg||""; }
+
+    function num(v){
+      const n = Number(String(v||"").trim());
+      return Number.isFinite(n) ? n : null;
+    }
+    function int(v){
+      const n = num(v);
+      return n===null ? null : Math.trunc(n);
+    }
+    function esc(s){
+      return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
     }
 
-    function money(n){ return Number(n).toFixed(0); }
-
-    function encodeProductsForUrl(list){
-      const json = JSON.stringify(list);
-      const base64 = btoa(unescape(encodeURIComponent(json)));
-      return base64;
+    function resetForm(){
+      editingId = null;
+      codeEl.value = ""; nameEl.value=""; priceEl.value=""; stockEl.value="";
+      saveBtn.textContent = "حفظ";
+      ok(formStatus, "");
     }
 
-    function cashierUrl(){
-      const encoded = encodeProductsForUrl(products);
-      return "./cashier.html?products=" + encodeURIComponent(encoded);
+    async function showUser(){
+      const { data } = await sb.auth.getUser();
+      who.textContent = data?.user?.email || data?.user?.id || "—";
     }
 
-    function syncCashierLink(){
-      openCashierA.setAttribute("href", cashierUrl());
-    }
+    async function load(){
+      ok(listStatus, "جاري التحميل...");
+      tbody.innerHTML = `<tr><td colspan="5" class="muted">جاري التحميل...</td></tr>`;
 
-    function render(){
-      const q = (searchEl.value || "").trim().toLowerCase();
-      const filtered = products.filter(p =>
-        p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)
-      );
+      const { data, error } = await sb
+        .from("products")
+        .select("id, code, name, price, stock, created_at")
+        .order("created_at", { ascending: false });
 
-      countEl.textContent = filtered.length;
-
-      tbody.innerHTML = "";
-      if(filtered.length === 0){
-        tbody.innerHTML = '<tr><td colspan="4" class="muted">مفيش منتجات مطابقة</td></tr>';
-      } else {
-        filtered.forEach((p, idx) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${p.code}</td>
-            <td>${p.name}</td>
-            <td>${money(p.price)}</td>
-            <td style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="smallbtn" data-edit="${p.code}">تعديل</button>
-              <button class="smallbtn" data-del="${p.code}">حذف</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      // ربط الأزرار
-      tbody.querySelectorAll("button[data-edit]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const code = btn.getAttribute("data-edit");
-          const p = products.find(x => x.code === code);
-          if(!p) return;
-          codeEl.value = p.code;
-          nameEl.value = p.name;
-          priceEl.value = p.price;
-          show('<span class="success">✅ عدّل البيانات واضغط إضافة/تحديث</span>', 1800);
-        });
-      });
-
-      tbody.querySelectorAll("button[data-del]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const code = btn.getAttribute("data-del");
-          products = products.filter(x => x.code !== code);
-          show('<span class="success">تم الحذف ✅</span>', 1200);
-          syncCashierLink();
-          render();
-        });
-      });
-
-      syncCashierLink();
-    }
-
-    document.getElementById("addBtn").addEventListener("click", () => {
-      const code = (codeEl.value || "").trim();
-      const name = (nameEl.value || "").trim();
-      const price = Number((priceEl.value || "").trim());
-
-      if(!code || !name || !Number.isFinite(price) || price <= 0){
-        show('<span class="danger">❌ اكتب كود + اسم + سعر صحيح</span>', 2000);
+      if (error){
+        err(listStatus, "خطأ: " + error.message);
         return;
       }
 
-      const existing = products.find(x => x.code === code);
-      if(existing){
-        existing.name = name;
-        existing.price = price;
-        show('<span class="success">✅ تم التحديث</span>', 1200);
+      const q = (qEl.value||"").trim().toLowerCase();
+      let rows = data || [];
+      if(q){
+        rows = rows.filter(r =>
+          String(r.code).toLowerCase().includes(q) ||
+          String(r.name||"").toLowerCase().includes(q)
+        );
+      }
+
+      countEl.textContent = String(rows.length);
+
+      if(!rows.length){
+        tbody.innerHTML = `<tr><td colspan="5" class="muted">لا يوجد منتجات</td></tr>`;
+        ok(listStatus, "");
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td class="mono">${esc(r.code)}</td>
+          <td>${esc(r.name||"")}</td>
+          <td>${esc(r.price ?? "")}</td>
+          <td>${esc(r.stock ?? "")}</td>
+          <td>
+            <div class="actions">
+              <button class="chip chipEdit" data-edit="${r.id}">تعديل</button>
+              <button class="chip chipDel" data-del="${r.id}">حذف</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      ok(listStatus, "");
+    }
+
+    async function save(){
+      const code = int(codeEl.value);
+      const name = (nameEl.value||"").trim();
+      const price = num(priceEl.value);
+      const stock = int(stockEl.value);
+
+      if(!code || !name || price===null || stock===null){
+        err(formStatus, "املأ: كود + اسم + سعر + مخزون");
+        return;
+      }
+
+      ok(formStatus, "جاري الحفظ...");
+
+      if(editingId){
+        const { error } = await sb
+          .from("products")
+          .update({ code, name, price, stock })
+          .eq("id", editingId);
+
+        if(error){
+          err(formStatus, "فشل التعديل: " + error.message);
+          return;
+        }
+        ok(formStatus, "✅ تم التعديل");
       } else {
-        products.push({ code, name, price });
-        show('<span class="success">✅ تمت الإضافة</span>', 1200);
+        const { error } = await sb
+          .from("products")
+          .insert([{ code, name, price, stock }]);
+
+        if(error){
+          err(formStatus, "فشل الإضافة: " + error.message);
+          return;
+        }
+        ok(formStatus, "✅ تمت الإضافة");
       }
 
-      codeEl.value = "";
-      nameEl.value = "";
-      priceEl.value = "";
-      syncCashierLink();
-      render();
+      resetForm();
+      await load();
+    }
+
+    async function del(id){
+      if(!confirm("متأكد تحذف المنتج؟")) return;
+      ok(listStatus, "جاري الحذف...");
+      const { error } = await sb.from("products").delete().eq("id", id);
+      if(error){ err(listStatus, "فشل الحذف: " + error.message); return; }
+      ok(listStatus, "✅ تم الحذف");
+      await load();
+    }
+
+    async function edit(id){
+      const { data, error } = await sb.from("products").select("id, code, name, price, stock").eq("id", id).single();
+      if(error){ err(formStatus, "فشل جلب المنتج: " + error.message); return; }
+      editingId = data.id;
+      codeEl.value = data.code ?? "";
+      nameEl.value = data.name ?? "";
+      priceEl.value = data.price ?? "";
+      stockEl.value = data.stock ?? "";
+      saveBtn.textContent = "تحديث";
+      ok(formStatus, "✏️ وضع التعديل شغال");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    saveBtn.addEventListener("click", save);
+    clearBtn.addEventListener("click", resetForm);
+    refreshBtn.addEventListener("click", load);
+    qEl.addEventListener("input", load);
+
+    tbody.addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if(!b) return;
+      const ed = b.getAttribute("data-edit");
+      const dl = b.getAttribute("data-del");
+      if(ed) edit(ed);
+      if(dl) del(dl);
     });
 
-    document.getElementById("clearBtn").addEventListener("click", () => {
-      codeEl.value = "";
-      nameEl.value = "";
-      priceEl.value = "";
-      show("تم ✅", 800);
-    });
-
-    searchEl.addEventListener("input", render);
-
-    copyLinkBtn.addEventListener("click", async () => {
-      const link = cashierUrl();
-      try{
-        await navigator.clipboard.writeText(new URL(link, location.href).toString());
-        show('<span class="success">✅ تم نسخ لينك الكاشير</span>', 1500);
-      }catch(e){
-        show('<span class="danger">❌ جهازك منع النسخ. افتح الكاشير من زر "افتح الكاشير".</span>', 2200);
-      }
-    });
-
-    render();
+    (async () => {
+      await showUser();
+      ok(topStatus, "✅ جاهز");
+      resetForm();
+      await load();
+    })();
   </script>
 </body>
-</html>
+      </html>
