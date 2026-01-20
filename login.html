@@ -1,112 +1,188 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>تسجيل الدخول</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b1220;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    :root{
+      --bg:#071426;
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --blue:#3b82f6;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --radius: 22px;
     }
-
-    .card {
-      background: #111a2e;
-      padding: 24px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 350px;
-      box-shadow: 0 0 20px rgba(0,0,0,.4);
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Cairo", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(900px 500px at 70% 10%, rgba(59,130,246,.25), transparent 55%),
+                  radial-gradient(700px 500px at 20% 30%, rgba(34,197,94,.15), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px 14px;
     }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
+    .wrap{width:min(520px, 100%);}
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(14px);
+      padding:18px;
     }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 16px;
+    h1{margin:0; font-size:26px}
+    .sub{margin:8px 0 0; color:var(--muted)}
+    .field{margin-top:12px; display:flex; flex-direction:column; gap:8px}
+    label{color:var(--muted); font-weight:700; font-size:14px}
+    input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      color:var(--text);
+      outline:none;
+      font-size:15px;
     }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      background: #3b82f6;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
+    input::placeholder{color: rgba(255,255,255,.35)}
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .btn{
+      flex:1;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.15s;
     }
-
-    button:hover {
-      background: #2563eb;
-    }
-
-    .msg {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 14px;
-    }
+    .btn.primary{background: var(--blue); border-color: rgba(59,130,246,.55)}
+    .btn:hover{transform:translateY(-1px)}
+    .status{margin-top:12px; font-weight:700; min-height:22px}
+    .hint{margin-top:10px; color:rgba(255,255,255,.60); font-size:13px; line-height:1.6}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>تسجيل الدخول</h1>
+      <p class="sub">ادخل بإيميل وباسورد (Supabase Auth)</p>
 
-<div class="card">
-  <h2>🔐 تسجيل الدخول</h2>
+      <div class="field">
+        <label>Supabase URL</label>
+        <input id="url" class="mono" placeholder="https://xxxx.supabase.co">
+      </div>
 
-  <input type="email" id="email" placeholder="الإيميل">
-  <input type="password" id="password" placeholder="كلمة المرور">
+      <div class="field">
+        <label>Publishable Key</label>
+        <input id="key" class="mono" placeholder="sb_publishable_...">
+      </div>
 
-  <button onclick="login()">دخول</button>
+      <div class="field">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="you@example.com">
+      </div>
 
-  <div class="msg" id="msg"></div>
-</div>
+      <div class="field">
+        <label>Password</label>
+        <input id="password" type="password" placeholder="********">
+      </div>
 
-<script>
-  const supabase = window.supabase.createClient(
-    "https://rjfkjdjnqqtotvvrmcey.supabase.co",
-    "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp"
-  );
+      <div class="row">
+        <button class="btn primary" id="loginBtn">دخول</button>
+        <button class="btn" id="saveBtn">حفظ البيانات</button>
+      </div>
 
-  async function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const msg = document.getElementById("msg");
+      <div class="status" id="status"></div>
 
-    msg.innerText = "جاري تسجيل الدخول...";
+      <div class="hint">
+        - اضغط <b>حفظ البيانات</b> مرة واحدة عشان ما تكتبش URL/Key كل مرة.<br>
+        - بعد الدخول هيروح تلقائيًا لصفحة <b>products.html</b>.
+      </div>
+    </div>
+  </div>
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-    if (error) {
-      msg.innerText = "❌ " + error.message;
-    } else {
-      msg.innerText = "✅ تم الدخول بنجاح";
-      setTimeout(() => {
-        window.location.href = "products.html";
-      }, 800);
+    const urlEl = document.getElementById("url");
+    const keyEl = document.getElementById("key");
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+
+    const loginBtn = document.getElementById("loginBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const statusEl = document.getElementById("status");
+
+    function setStatus(msg, ok=true){
+      statusEl.textContent = msg || "";
+      statusEl.style.color = ok ? "rgba(255,255,255,.88)" : "rgba(239,68,68,.95)";
     }
-  }
-</script>
 
+    function loadConfig(){
+      const cfg = JSON.parse(localStorage.getItem("pos_cfg") || "{}");
+      if (cfg.url) urlEl.value = cfg.url;
+      if (cfg.key) keyEl.value = cfg.key;
+    }
+
+    function saveConfig(){
+      const url = (urlEl.value||"").trim();
+      const key = (keyEl.value||"").trim();
+      if(!url || !key){
+        setStatus("اكتب URL و Key الأول", false);
+        return;
+      }
+      localStorage.setItem("pos_cfg", JSON.stringify({ url, key }));
+      setStatus("✅ تم حفظ URL و Key");
+    }
+
+    async function login(){
+      const url = (urlEl.value||"").trim();
+      const key = (keyEl.value||"").trim();
+      const email = (emailEl.value||"").trim();
+      const password = (passEl.value||"").trim();
+
+      if(!url || !key || !email || !password){
+        setStatus("املأ كل الخانات", false);
+        return;
+      }
+
+      setStatus("جاري تسجيل الدخول...");
+
+      const supabase = createClient(url, key);
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if(error){
+        setStatus("فشل الدخول: " + error.message, false);
+        return;
+      }
+
+      // نحفظ session تلقائيًا في localStorage
+      setStatus("✅ تم الدخول بنجاح");
+      // نروح للمنتجات
+      setTimeout(() => {
+        location.href = "./products.html";
+      }, 400);
+    }
+
+    saveBtn.addEventListener("click", saveConfig);
+    loginBtn.addEventListener("click", login);
+
+    loadConfig();
+  </script>
 </body>
 </html>
