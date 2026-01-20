@@ -1,256 +1,63 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Products</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body{background:linear-gradient(135deg,#0b1220,#0b1a2a);}
-  </style>
+<meta charset="UTF-8">
+<title>المنتجات</title>
+<style>
+body{background:#0f2027;color:white;font-family:Arial;padding:20px}
+input,button{padding:10px;margin:5px}
+.card{background:#1e293b;padding:15px;border-radius:8px;margin-top:10px}
+</style>
 </head>
+<body>
 
-<body class="min-h-screen text-white">
-  <!-- Top Bar -->
-  <div class="max-w-3xl mx-auto px-4 pt-6">
-    <div class="flex items-center justify-between">
-      <a href="./index.html" class="px-4 py-2 rounded-xl bg-white/10 border border-white/10">رجوع</a>
+<h2>إضافة منتج</h2>
+<input id="code" placeholder="كود">
+<input id="name" placeholder="اسم">
+<input id="price" placeholder="سعر">
+<input id="stock" placeholder="مخزون">
+<button onclick="add()">حفظ</button>
 
-      <div class="text-right">
-        <div class="text-xl font-bold">المنتجات</div>
-        <div class="text-white/70 text-sm">إضافة / تعديل / حذف</div>
-      </div>
+<h2>بحث</h2>
+<input id="search" placeholder="كود">
+<button onclick="find()">بحث</button>
 
-      <button id="logoutBtn" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200">
-        خروج
-      </button>
-    </div>
+<div id="result"></div>
 
-    <!-- Add/Edit Card -->
-    <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
-      <div class="text-lg font-bold mb-4">إضافة / تعديل</div>
+<script type="module">
+import { supabase } from "./supabaseClient.js";
 
-      <div class="grid gap-3">
-        <input id="code" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="كود المنتج (مثال: 1111)" />
-        <input id="name" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="الاسم" />
-        <input id="price" type="number" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="السعر" />
-        <input id="stock" type="number" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="المخزون" />
-      </div>
+async function add(){
+  await supabase.from("products").insert({
+    code:code.value,
+    name:name.value,
+    price:price.value,
+    stock:stock.value
+  });
+  alert("تم الحفظ");
+}
 
-      <div class="mt-4 flex gap-3">
-        <button id="saveBtn" class="flex-1 p-4 rounded-2xl bg-blue-500 hover:bg-blue-600 font-bold">حفظ</button>
-        <button id="clearBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">تفريغ</button>
-      </div>
+async function find(){
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("code",search.value)
+    .single();
 
-      <div id="msg" class="mt-4 text-center text-sm text-white/80"></div>
-    </div>
+  if(!data){ result.innerText="مش موجود"; return; }
 
-    <!-- Search + List -->
-    <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
-      <div class="flex gap-3 items-center">
-        <input id="q" class="flex-1 p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="ابحث بالكود أو الاسم..." />
-        <button id="refreshBtn" class="px-4 py-3 rounded-2xl bg-white/10 border border-white/10">تحديث</button>
-      </div>
+  result.innerHTML = `
+    <div class="card">
+      الاسم: ${data.name}<br>
+      السعر: ${data.price}<br>
+      المخزون: ${data.stock}
+    </div>`;
+}
 
-      <div class="mt-4 overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="text-white/70">
-            <tr class="border-b border-white/10">
-              <th class="py-3 text-right">الكود</th>
-              <th class="py-3 text-right">الاسم</th>
-              <th class="py-3 text-right">السعر</th>
-              <th class="py-3 text-right">المخزون</th>
-              <th class="py-3 text-right">إجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-    </div>
+window.add=add;
+window.find=find;
+</script>
 
-    <div class="h-10"></div>
-  </div>
-
-  <!-- IMPORTANT: must be same file used by cashier/login -->
-  <script src="./supabase.js"></script>
-
-  <script>
-    // === MUST exist in supabase.js ===
-    // window.supabaseClient OR window.supabase
-    // We'll support both:
-    const sb = window.supabaseClient || window.supabase;
-    const msg = document.getElementById("msg");
-
-    function setMsg(t, ok=true){
-      msg.className = "mt-4 text-center text-sm " + (ok ? "text-green-200" : "text-red-300");
-      msg.textContent = t;
-    }
-
-    async function requireAuth(){
-      const { data } = await sb.auth.getSession();
-      if(!data.session){
-        location.href = "./login.html";
-        return null;
-      }
-      return data.session;
-    }
-
-    // Inputs
-    const codeEl = document.getElementById("code");
-    const nameEl = document.getElementById("name");
-    const priceEl = document.getElementById("price");
-    const stockEl = document.getElementById("stock");
-    const qEl = document.getElementById("q");
-    const rowsEl = document.getElementById("rows");
-
-    let editingId = null;
-
-    function clearForm(){
-      editingId = null;
-      codeEl.value = "";
-      nameEl.value = "";
-      priceEl.value = "";
-      stockEl.value = "";
-      setMsg("");
-    }
-
-    async function loadProducts(){
-      const session = await requireAuth();
-      if(!session) return;
-
-      const q = (qEl.value || "").trim();
-
-      let query = sb.from("products")
-        .select("id,code,name,price,stock")
-        .order("created_at", { ascending:false });
-
-      if(q){
-        // search by code or name
-        // ilike needs %...%
-        query = query.or(`code.ilike.%${q}%,name.ilike.%${q}%`);
-      }
-
-      const { data, error } = await query;
-      if(error){
-        setMsg("خطأ في تحميل المنتجات: " + error.message, false);
-        return;
-      }
-
-      rowsEl.innerHTML = "";
-      if(!data || data.length === 0){
-        rowsEl.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-white/60">لا يوجد منتجات</td></tr>`;
-        return;
-      }
-
-      for(const p of data){
-        const tr = document.createElement("tr");
-        tr.className = "border-b border-white/10";
-        tr.innerHTML = `
-          <td class="py-3">${escapeHtml(p.code)}</td>
-          <td class="py-3">${escapeHtml(p.name)}</td>
-          <td class="py-3">${Number(p.price || 0)}</td>
-          <td class="py-3">${Number(p.stock || 0)}</td>
-          <td class="py-3">
-            <div class="flex gap-2">
-              <button class="px-3 py-2 rounded-xl bg-white/10 border border-white/10" data-edit="${p.id}">تعديل</button>
-              <button class="px-3 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200" data-del="${p.id}">حذف</button>
-            </div>
-          </td>
-        `;
-        rowsEl.appendChild(tr);
-      }
-
-      // bind actions
-      rowsEl.querySelectorAll("[data-edit]").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const id = btn.getAttribute("data-edit");
-          const { data, error } = await sb.from("products").select("id,code,name,price,stock").eq("id", id).single();
-          if(error){ setMsg("خطأ: " + error.message, false); return; }
-          editingId = data.id;
-          codeEl.value = data.code || "";
-          nameEl.value = data.name || "";
-          priceEl.value = data.price ?? "";
-          stockEl.value = data.stock ?? "";
-          setMsg("وضع التعديل ✅");
-        });
-      });
-
-      rowsEl.querySelectorAll("[data-del]").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const id = btn.getAttribute("data-del");
-          if(!confirm("متأكد حذف المنتج؟")) return;
-          const { error } = await sb.from("products").delete().eq("id", id);
-          if(error){ setMsg("فشل الحذف: " + error.message, false); return; }
-          setMsg("تم الحذف ✅");
-          await loadProducts();
-        });
-      });
-    }
-
-    function escapeHtml(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    document.getElementById("saveBtn").addEventListener("click", async ()=>{
-      const session = await requireAuth();
-      if(!session) return;
-
-      const code = (codeEl.value || "").trim();
-      const name = (nameEl.value || "").trim();
-      const price = Number(priceEl.value || 0);
-      const stock = Number(stockEl.value || 0);
-
-      if(!code || !name){
-        setMsg("اكتب الكود والاسم.", false);
-        return;
-      }
-
-      // IMPORTANT: user_id must be set to pass RLS
-      const payload = {
-        user_id: session.user.id,
-        code, name, price, stock
-      };
-
-      let res;
-      if(editingId){
-        res = await sb.from("products").update(payload).eq("id", editingId);
-      }else{
-        res = await sb.from("products").insert(payload);
-      }
-
-      if(res.error){
-        setMsg("فشل الحفظ: " + res.error.message, false);
-        return;
-      }
-
-      setMsg("تم الحفظ ✅");
-      clearForm();
-      await loadProducts();
-    });
-
-    document.getElementById("clearBtn").addEventListener("click", clearForm);
-    document.getElementById("refreshBtn").addEventListener("click", loadProducts);
-    qEl.addEventListener("input", ()=>{
-      // small debounce
-      clearTimeout(window.__t);
-      window.__t = setTimeout(loadProducts, 250);
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", async ()=>{
-      await sb.auth.signOut();
-      location.href = "./login.html";
-    });
-
-    // init
-    (async ()=>{
-      await requireAuth();
-      await loadProducts();
-    })();
-  </script>
 </body>
 </html>
+
