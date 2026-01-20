@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تسجيل خروج</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase.js"></script>
+</head>
+<body style="font-family:Arial;background:#071018;color:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center">
+  <div>جاري تسجيل الخروج...</div>
+  <script>
+    (async () => {
+      await window.sb.auth.signOut();
+      location.href = "./login.html";
+    })();
+  </script>
+</body>
+</html>
