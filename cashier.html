@@ -2,345 +2,357 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>الكاشير</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cashier</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{
-      --bg:#071426; --card:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.10);
-      --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.70);
-      --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --shadow:0 18px 60px rgba(0,0,0,.35); --r:20px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;font-family:"Cairo",Arial;
-      background: radial-gradient(900px 500px at 70% 10%, rgba(59,130,246,.25), transparent 55%),
-                  radial-gradient(700px 500px at 20% 30%, rgba(34,197,94,.12), transparent 55%),
-                  var(--bg);
-      color:var(--text);min-height:100vh;padding:18px;
-      display:flex;justify-content:center;align-items:flex-start;
-    }
-    .wrap{width:min(980px,100%)}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;
-      background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.30);font-weight:900}
-    .card{margin-top:14px;background:var(--card);border:1px solid var(--stroke);border-radius:var(--r);
-      box-shadow:var(--shadow);padding:14px;backdrop-filter:blur(12px)}
-    .muted{color:var(--muted)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:end}
-    .field{flex:1;min-width:160px}
-    label{display:block;margin:0 0 6px;font-weight:800;color:var(--muted);font-size:13px}
-    input{
-      width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.18);color:var(--text);outline:none
-    }
-    button{
-      border:1px solid var(--stroke);background:rgba(255,255,255,.06);color:var(--text);
-      padding:11px 14px;border-radius:14px;font-weight:900;cursor:pointer
-    }
-    .btn{background:var(--blue);border-color:rgba(59,130,246,.55)}
-    .btnGreen{background:rgba(34,197,94,.20);border-color:rgba(34,197,94,.35)}
-    .btnRed{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35)}
-    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;border-radius:16px;overflow:hidden;
-      border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.12)}
-    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right;font-size:14px}
-    th{color:rgba(255,255,255,.82);font-size:13px}
-    tr:last-child td{border-bottom:none}
-    .status{margin-top:10px;min-height:20px;font-weight:900;white-space:pre-wrap}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
+    body{background:linear-gradient(135deg,#0b1220,#0b1a2a);}
   </style>
-
-  <!-- Supabase + مشروعك + حماية -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./supabase.js"></script>
-  <script src="./guard.js"></script>
 </head>
 
-<body>
-  <div class="wrap">
-    <div class="top">
-      <div class="pill">🧾 الكاشير</div>
-      <div class="row" style="margin-top:0">
-        <a href="./products.html"><button>المنتجات</button></a>
-        <a href="./logout.html"><button class="btnRed">تسجيل خروج</button></a>
+<body class="min-h-screen text-white">
+  <div class="max-w-3xl mx-auto px-4 pt-6">
+
+    <!-- Top bar -->
+    <div class="flex items-center justify-between">
+      <a href="./index.html" class="px-4 py-2 rounded-xl bg-white/10 border border-white/10">رجوع</a>
+
+      <div class="text-right">
+        <div class="text-xl font-bold">🧾 كاشير</div>
+        <div class="text-white/70 text-sm">تجربة تعليمية</div>
+      </div>
+
+      <button id="logoutBtn" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200">
+        خروج
+      </button>
+    </div>
+
+    <!-- Add item card -->
+    <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
+      <div class="text-lg font-bold mb-2">إضافة منتج للسلة</div>
+      <div class="text-white/70 text-sm mb-4">اكتب كود المنتج واضغط "بحث" ثم اختر الكمية واضغط "إضافة"</div>
+
+      <div class="grid gap-3">
+        <input id="code" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="كود المنتج (مثال: 1001)" />
+        <input id="qty" type="number" min="1" value="1" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="الكمية" />
+      </div>
+
+      <div class="mt-4 flex gap-3">
+        <button id="findBtn" class="flex-1 p-4 rounded-2xl bg-blue-500 hover:bg-blue-600 font-bold">بحث</button>
+        <button id="addBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">إضافة</button>
+      </div>
+
+      <div id="found" class="mt-4 text-center text-sm text-white/80"></div>
+      <div id="msg" class="mt-2 text-center text-sm"></div>
+    </div>
+
+    <!-- Cart -->
+    <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-lg font-bold">السلة</div>
+        <div class="text-white/70 text-sm">الإجمالي: <span id="total">0</span> جنيه</div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-white/70">
+            <tr class="border-b border-white/10">
+              <th class="py-3 text-right">الكود</th>
+              <th class="py-3 text-right">الاسم</th>
+              <th class="py-3 text-right">السعر</th>
+              <th class="py-3 text-right">الكمية</th>
+              <th class="py-3 text-right">الإجمالي</th>
+              <th class="py-3 text-right">حذف</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="6" class="py-6 text-center text-white/60">السلة فاضية</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex gap-3">
+        <button id="confirmBtn" class="flex-1 p-4 rounded-2xl bg-blue-500 hover:bg-blue-600 font-bold">تأكيد</button>
+        <button id="clearBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">تفريغ</button>
+      </div>
+
+      <div class="mt-3 text-center text-xs text-white/60">
+        * التأكيد هنا بيعمل فاتورة + يخصم مخزون (فعليًا على Supabase)
       </div>
     </div>
 
-    <div class="card">
-      <div class="muted">الحساب: <span id="who" class="mono">...</span></div>
-
-      <div class="row">
-        <div class="field" style="flex:1.4">
-          <label>كود المنتج</label>
-          <input id="code" placeholder="1001" inputmode="numeric">
-        </div>
-        <div class="field">
-          <label>الكمية</label>
-          <input id="qty" type="number" min="1" value="1">
-        </div>
-        <button id="findBtn">بحث</button>
-        <button class="btn" id="addBtn" disabled>إضافة</button>
-      </div>
-
-      <div class="status" id="findStatus"></div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin:0 0 6px">السلة</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>الكود</th>
-            <th>الاسم</th>
-            <th>السعر</th>
-            <th>الكمية</th>
-            <th>الإجمالي</th>
-            <th>حذف</th>
-          </tr>
-        </thead>
-        <tbody id="cartBody">
-          <tr><td colspan="6" class="muted">السلة فاضية</td></tr>
-        </tbody>
-      </table>
-
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <div style="font-weight:900">الإجمالي: <span id="grand">0</span> جنيه</div>
-        <button class="btnGreen" id="checkoutBtn" disabled>تأكيد وحفظ فاتورة</button>
-      </div>
-
-      <div class="status" id="checkoutStatus"></div>
-    </div>
+    <div class="h-10"></div>
   </div>
 
-  <script>
-    const sb = window.sb;
+  <!-- Must exist -->
+  <script src="./supabase.js"></script>
 
-    const who = document.getElementById("who");
+  <script>
+    const sb = window.supabaseClient || window.supabase;
+
+    const msg = document.getElementById("msg");
+    const found = document.getElementById("found");
+    const rowsEl = document.getElementById("rows");
+    const totalEl = document.getElementById("total");
 
     const codeEl = document.getElementById("code");
     const qtyEl = document.getElementById("qty");
-    const findBtn = document.getElementById("findBtn");
-    const addBtn = document.getElementById("addBtn");
-    const findStatus = document.getElementById("findStatus");
 
-    const cartBody = document.getElementById("cartBody");
-    const grandEl = document.getElementById("grand");
-    const checkoutBtn = document.getElementById("checkoutBtn");
-    const checkoutStatus = document.getElementById("checkoutStatus");
+    let session = null;
+    let lastFoundProduct = null;
 
-    let selected = null;
-    let cart = [];
+    // cart: key = product_id
+    const cart = new Map();
 
-    function ok(el, msg){ el.style.color="rgba(255,255,255,.9)"; el.textContent = msg||""; }
-    function err(el, msg){ el.style.color="rgba(239,68,68,.95)"; el.textContent = msg||""; }
-    function esc(s){ return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
-    function money(n){ return Number(n||0).toFixed(0); }
+    function setMsg(text, ok=true){
+      msg.className = "mt-2 text-center text-sm " + (ok ? "text-green-200" : "text-red-300");
+      msg.textContent = text || "";
+    }
 
-    async function showUser(){
-      const { data } = await sb.auth.getUser();
-      who.textContent = data?.user?.email || data?.user?.id || "—";
+    function setFound(text, ok=true){
+      found.className = "mt-4 text-center text-sm " + (ok ? "text-green-200" : "text-red-300");
+      found.textContent = text || "";
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    async function requireAuth(){
+      const { data } = await sb.auth.getSession();
+      if(!data.session){
+        location.href = "./login.html";
+        return null;
+      }
+      session = data.session;
+      return session;
     }
 
     function renderCart(){
-      cartBody.innerHTML = "";
-      if(cart.length === 0){
-        cartBody.innerHTML = `<tr><td colspan="6" class="muted">السلة فاضية</td></tr>`;
-        grandEl.textContent = "0";
-        checkoutBtn.disabled = true;
+      const items = Array.from(cart.values());
+      if(items.length === 0){
+        rowsEl.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-white/60">السلة فاضية</td></tr>`;
+        totalEl.textContent = "0";
         return;
       }
 
-      let grand = 0;
-      cart.forEach((it, idx) => {
-        const line = it.price * it.qty;
-        grand += line;
+      let total = 0;
+      rowsEl.innerHTML = "";
+      for(const it of items){
+        const line = Number(it.price) * Number(it.qty);
+        total += line;
+
         const tr = document.createElement("tr");
+        tr.className = "border-b border-white/10";
         tr.innerHTML = `
-          <td class="mono">${esc(it.code)}</td>
-          <td>${esc(it.name)}</td>
-          <td>${money(it.price)}</td>
-          <td>${it.qty}</td>
-          <td>${money(line)}</td>
-          <td><button data-del="${idx}">حذف</button></td>
+          <td class="py-3">${escapeHtml(it.code)}</td>
+          <td class="py-3">${escapeHtml(it.name)}</td>
+          <td class="py-3">${Number(it.price)}</td>
+          <td class="py-3">
+            <input type="number" min="1" class="w-20 p-2 rounded-xl bg-black/20 border border-white/10 outline-none"
+              value="${Number(it.qty)}" data-qty="${it.product_id}">
+          </td>
+          <td class="py-3">${line}</td>
+          <td class="py-3">
+            <button class="px-3 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200" data-del="${it.product_id}">حذف</button>
+          </td>
         `;
-        cartBody.appendChild(tr);
+        rowsEl.appendChild(tr);
+      }
+
+      totalEl.textContent = String(total);
+
+      // bind qty change
+      rowsEl.querySelectorAll("[data-qty]").forEach(inp=>{
+        inp.addEventListener("input", ()=>{
+          const id = inp.getAttribute("data-qty");
+          const v = Math.max(1, Number(inp.value || 1));
+          const it = cart.get(id);
+          if(it){
+            it.qty = v;
+            cart.set(id, it);
+            renderCart();
+          }
+        });
       });
 
-      grandEl.textContent = money(grand);
-      checkoutBtn.disabled = false;
+      // bind delete
+      rowsEl.querySelectorAll("[data-del]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-del");
+          cart.delete(id);
+          renderCart();
+        });
+      });
     }
 
-    cartBody.addEventListener("click", (e) => {
-      const b = e.target.closest("button");
-      if(!b) return;
-      const i = b.getAttribute("data-del");
-      if(i === null) return;
-      cart.splice(Number(i), 1);
-      renderCart();
-      ok(checkoutStatus, "تم الحذف من السلة ✅");
-    });
-
     async function findProduct(){
-      ok(findStatus, "جاري البحث...");
-      selected = null;
-      addBtn.disabled = true;
+      setMsg("");
+      setFound("");
 
-      const code = (codeEl.value||"").trim();
+      const code = (codeEl.value || "").trim();
       if(!code){
-        err(findStatus, "اكتب كود المنتج");
+        setFound("اكتب كود المنتج.", false);
         return;
       }
+
+      // make sure auth exists
+      await requireAuth();
 
       const { data, error } = await sb
         .from("products")
-        .select("id, code, name, price, stock")
-        .eq("code", Number.isFinite(Number(code)) ? Number(code) : code) // لو الكود رقم
-        .limit(1);
+        .select("id,code,name,price,stock")
+        .eq("code", code)
+        .single();
 
       if(error){
-        err(findStatus, "خطأ: " + error.message);
+        lastFoundProduct = null;
+        setFound("مش لاقي المنتج بالكود ده.", false);
         return;
       }
 
-      const p = (data && data[0]) ? data[0] : null;
-      if(!p){
-        err(findStatus, "❌ المنتج غير موجود");
-        return;
-      }
-
-      selected = p;
-      addBtn.disabled = false;
-      ok(findStatus, `✅ ${p.name} — السعر ${money(p.price)} — المخزون ${p.stock}`);
+      lastFoundProduct = data;
+      setFound(`✅ ${data.name} — السعر: ${Number(data.price)} جنيه — المخزون: ${Number(data.stock)}`);
     }
 
     function addToCart(){
-      if(!selected) return;
-
-      const qty = Math.max(1, Number(qtyEl.value || 1));
-      if(qty > Number(selected.stock || 0)){
-        err(findStatus, `❌ الكمية أكبر من المخزون (المتاح: ${selected.stock})`);
+      setMsg("");
+      if(!lastFoundProduct){
+        setMsg("اعمل بحث الأول.", false);
         return;
       }
 
-      const ex = cart.find(x => String(x.product_id) === String(selected.id));
-      if(ex){
-        const newQty = ex.qty + qty;
-        if(newQty > Number(selected.stock || 0)){
-          err(findStatus, `❌ الإجمالي هيبقى أكبر من المخزون (المتاح: ${selected.stock})`);
-          return;
-        }
-        ex.qty = newQty;
-      } else {
-        cart.push({
-          product_id: selected.id,
-          code: selected.code,
-          name: selected.name,
-          price: Number(selected.price),
-          qty
-        });
+      const q = Math.max(1, Number(qtyEl.value || 1));
+      const stock = Number(lastFoundProduct.stock || 0);
+
+      if(q > stock){
+        setMsg(`الكمية أكبر من المخزون (المتاح: ${stock}).`, false);
+        return;
       }
 
-      renderCart();
-      ok(findStatus, "تمت الإضافة للسلة ✅");
+      const id = String(lastFoundProduct.id);
+      const existing = cart.get(id);
+      const newQty = (existing ? existing.qty : 0) + q;
 
-      // تنظيف
-      codeEl.value = "";
-      qtyEl.value = "1";
-      selected = null;
-      addBtn.disabled = true;
-      codeEl.focus();
+      if(newQty > stock){
+        setMsg(`الإجمالي في السلة أكبر من المخزون (المتاح: ${stock}).`, false);
+        return;
+      }
+
+      cart.set(id, {
+        product_id: id,
+        code: lastFoundProduct.code,
+        name: lastFoundProduct.name,
+        price: Number(lastFoundProduct.price || 0),
+        qty: newQty
+      });
+
+      setMsg("تمت الإضافة ✅");
+      renderCart();
     }
 
-    async function checkout(){
-      if(cart.length === 0) return;
+    async function confirm(){
+      setMsg("");
 
-      ok(checkoutStatus, "جاري إنشاء الفاتورة...");
-
-      // 1) احسب الإجمالي
-      const total = cart.reduce((s, it) => s + it.price * it.qty, 0);
-
-      // 2) اعمل invoice
-      const { data: invData, error: invErr } = await sb
-        .from("invoices")
-        .insert([{ total }])
-        .select("id")
-        .single();
-
-      if(invErr){
-        err(checkoutStatus, "فشل إنشاء الفاتورة: " + invErr.message);
+      const items = Array.from(cart.values());
+      if(items.length === 0){
+        setMsg("السلة فاضية.", false);
         return;
       }
 
-      const invoiceId = invData.id;
+      await requireAuth();
 
-      // 3) عناصر الفاتورة
-      const items = cart.map(it => ({
+      // Calculate total
+      const total = items.reduce((s,it)=> s + (Number(it.price)*Number(it.qty)), 0);
+
+      // 1) Create invoice
+      const invoicePayload = {
+        user_id: session.user.id,
+        total: total
+      };
+
+      const invRes = await sb.from("invoices").insert(invoicePayload).select("id").single();
+      if(invRes.error){
+        setMsg("فشل إنشاء الفاتورة: " + invRes.error.message, false);
+        return;
+      }
+      const invoiceId = invRes.data.id;
+
+      // 2) Create invoice items
+      const itemsPayload = items.map(it => ({
+        user_id: session.user.id,
         invoice_id: invoiceId,
         product_id: it.product_id,
         code: it.code,
         name: it.name,
-        price: it.price,
-        qty: it.qty,
-        line_total: it.price * it.qty
+        price: Number(it.price),
+        qty: Number(it.qty),
+        line_total: Number(it.price) * Number(it.qty)
       }));
 
-      const { error: itemsErr } = await sb.from("invoice_items").insert(items);
-      if(itemsErr){
-        err(checkoutStatus, "فشل حفظ عناصر الفاتورة: " + itemsErr.message);
+      const itemsRes = await sb.from("invoice_items").insert(itemsPayload);
+      if(itemsRes.error){
+        setMsg("فشل حفظ بنود الفاتورة: " + itemsRes.error.message, false);
         return;
       }
 
-      // 4) خصم المخزون (نقرأ المخزون الحالي لكل منتج ثم نحدثه)
-      for(const it of cart){
-        const { data: pRow, error: pErr } = await sb
-          .from("products")
-          .select("id, stock")
-          .eq("id", it.product_id)
-          .single();
-
-        if(pErr){
-          err(checkoutStatus, "فشل قراءة مخزون: " + pErr.message);
+      // 3) Deduct stock (one-by-one to keep it simple)
+      for(const it of items){
+        // get current stock to be safe
+        const pRes = await sb.from("products").select("id,stock").eq("id", it.product_id).single();
+        if(pRes.error){
+          setMsg("فشل قراءة المخزون: " + pRes.error.message, false);
+          return;
+        }
+        const current = Number(pRes.data.stock || 0);
+        const next = current - Number(it.qty);
+        if(next < 0){
+          setMsg(`المخزون خلص للمنتج ${it.code}.`, false);
           return;
         }
 
-        const newStock = Number(pRow.stock || 0) - it.qty;
-        if(newStock < 0){
-          err(checkoutStatus, "❌ المخزون اتغير ومبقاش كافي. رجع اختبر تاني.");
-          return;
-        }
-
-        const { error: uErr } = await sb
-          .from("products")
-          .update({ stock: newStock })
+        const uRes = await sb.from("products")
+          .update({ user_id: session.user.id, stock: next })
           .eq("id", it.product_id);
 
-        if(uErr){
-          err(checkoutStatus, "فشل خصم المخزون: " + uErr.message);
+        if(uRes.error){
+          setMsg("فشل خصم المخزون: " + uRes.error.message, false);
           return;
         }
       }
 
-      ok(checkoutStatus, `✅ تم حفظ الفاتورة بنجاح (Total: ${money(total)})`);
-      cart = [];
+      cart.clear();
       renderCart();
+      setMsg("✅ تم التأكيد وإنشاء الفاتورة وخصم المخزون!");
+      setFound("");
+      lastFoundProduct = null;
+      codeEl.value = "";
+      qtyEl.value = 1;
     }
 
-    findBtn.addEventListener("click", findProduct);
-    addBtn.addEventListener("click", addToCart);
-    checkoutBtn.addEventListener("click", checkout);
+    document.getElementById("findBtn").addEventListener("click", findProduct);
+    document.getElementById("addBtn").addEventListener("click", addToCart);
+    document.getElementById("clearBtn").addEventListener("click", ()=>{
+      cart.clear();
+      renderCart();
+      setMsg("تم تفريغ السلة.");
+    });
+    document.getElementById("confirmBtn").addEventListener("click", confirm);
 
-    codeEl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter"){ e.preventDefault(); findProduct(); }
+    document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+      await sb.auth.signOut();
+      location.href = "./login.html";
     });
 
-    (async () => {
-      await showUser();
+    // init
+    (async ()=>{
+      await requireAuth();
       renderCart();
-      ok(findStatus, "اكتب كود واضغط بحث");
     })();
   </script>
 </body>
