@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تسجيل الدخول</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1220;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: #111a2e;
+      padding: 24px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 350px;
+      box-shadow: 0 0 20px rgba(0,0,0,.4);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .msg {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🔐 تسجيل الدخول</h2>
+
+  <input type="email" id="email" placeholder="الإيميل">
+  <input type="password" id="password" placeholder="كلمة المرور">
+
+  <button onclick="login()">دخول</button>
+
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+  const supabase = window.supabase.createClient(
+    "https://rjfkjdjnqqtotvvrmcey.supabase.co",
+    "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp"
+  );
+
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const msg = document.getElementById("msg");
+
+    msg.innerText = "جاري تسجيل الدخول...";
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      msg.innerText = "❌ " + error.message;
+    } else {
+      msg.innerText = "✅ تم الدخول بنجاح";
+      setTimeout(() => {
+        window.location.href = "products.html";
+      }, 800);
+    }
+  }
+</script>
+
+</body>
+</html>
