@@ -1,105 +1,96 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>الكاشير</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
+    :root{
+      --bg:#071426; --card:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.70);
+      --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --shadow:0 18px 60px rgba(0,0,0,.35); --r:20px;
+    }
     *{box-sizing:border-box}
     body{
       margin:0;font-family:"Cairo",Arial;
-      background:linear-gradient(135deg,#0b1220,#020617);
-      color:#e8eefc;min-height:100vh;padding:18px
+      background: radial-gradient(900px 500px at 70% 10%, rgba(59,130,246,.25), transparent 55%),
+                  radial-gradient(700px 500px at 20% 30%, rgba(34,197,94,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);min-height:100vh;padding:18px;
+      display:flex;justify-content:center;align-items:flex-start;
     }
-    .wrap{max-width:980px;margin:0 auto}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .pill{
-      display:inline-block;padding:6px 10px;border-radius:999px;
-      background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.30)
-    }
-    .card{
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:16px;padding:16px;margin-top:14px;
-      box-shadow:0 16px 36px rgba(0,0,0,.25)
-    }
-    .muted{color:#cdd7f3}
-    .row{display:grid;grid-template-columns:1fr 170px 260px;gap:10px}
-    @media (max-width:760px){.row{grid-template-columns:1fr}}
-    label{display:block;margin:0 0 6px}
-    input,button{font-family:"Cairo",Arial}
+    .wrap{width:min(980px,100%)}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;
+      background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.30);font-weight:900}
+    .card{margin-top:14px;background:var(--card);border:1px solid var(--stroke);border-radius:var(--r);
+      box-shadow:var(--shadow);padding:14px;backdrop-filter:blur(12px)}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:end}
+    .field{flex:1;min-width:160px}
+    label{display:block;margin:0 0 6px;font-weight:800;color:var(--muted);font-size:13px}
     input{
-      width:100%;padding:12px;border-radius:12px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.2);color:#e8eefc;outline:none
+      width:100%;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.18);color:var(--text);outline:none
     }
-    .btn{
-      padding:12px 14px;border-radius:12px;border:0;
-      background:#3b82f6;color:white;font-weight:700;cursor:pointer;
-      width:100%;
+    button{
+      border:1px solid var(--stroke);background:rgba(255,255,255,.06);color:var(--text);
+      padding:11px 14px;border-radius:14px;font-weight:900;cursor:pointer
     }
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-    .btn2{
-      padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);
-      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer;
-      width:100%;
-    }
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.12);text-align:right}
-    th{color:#dbe7ff}
-    .total{font-size:18px;font-weight:700}
-    .actions{display:flex;gap:10px;align-items:end}
-    .smallbtn{
-      padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
-      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer
-    }
-    .success{color:#86efac}
-    .danger{color:#fca5a5}
+    .btn{background:var(--blue);border-color:rgba(59,130,246,.55)}
+    .btnGreen{background:rgba(34,197,94,.20);border-color:rgba(34,197,94,.35)}
+    .btnRed{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35)}
+    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;border-radius:16px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.12)}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right;font-size:14px}
+    th{color:rgba(255,255,255,.82);font-size:13px}
+    tr:last-child td{border-bottom:none}
+    .status{margin-top:10px;min-height:20px;font-weight:900;white-space:pre-wrap}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
   </style>
+
+  <!-- Supabase + مشروعك + حماية -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase.js"></script>
+  <script src="./guard.js"></script>
 </head>
+
 <body>
   <div class="wrap">
     <div class="top">
-      <div>
-        <div class="pill">🧾 كاشير (تجربة تعليمية)</div>
-        <h2 style="margin:10px 0 0">إضافة منتج للسلة</h2>
-        <div class="muted" id="sourceNote">المصدر: منتجات افتراضية</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a href="./index.html" style="text-decoration:none"><button class="btn2" style="width:auto">⬅ رجوع</button></a>
-        <a href="./products.html" style="text-decoration:none"><button class="btn" style="width:auto">إدارة المنتجات</button></a>
+      <div class="pill">🧾 الكاشير</div>
+      <div class="row" style="margin-top:0">
+        <a href="./products.html"><button>المنتجات</button></a>
+        <a href="./logout.html"><button class="btnRed">تسجيل خروج</button></a>
       </div>
     </div>
 
     <div class="card">
+      <div class="muted">الحساب: <span id="who" class="mono">...</span></div>
+
       <div class="row">
-        <div>
-          <label class="muted">كود المنتج</label>
-          <input id="code" placeholder="مثال: 1001" inputmode="numeric" />
+        <div class="field" style="flex:1.4">
+          <label>كود المنتج</label>
+          <input id="code" placeholder="1001" inputmode="numeric">
         </div>
-
-        <div>
-          <label class="muted">الكمية</label>
-          <input id="qty" type="number" min="1" value="1" />
+        <div class="field">
+          <label>الكمية</label>
+          <input id="qty" type="number" min="1" value="1">
         </div>
-
-        <div class="actions">
-          <button class="btn2" id="findBtn" type="button">بحث</button>
-          <button class="btn" id="addBtn" type="button" disabled>إضافة</button>
-        </div>
+        <button id="findBtn">بحث</button>
+        <button class="btn" id="addBtn" disabled>إضافة</button>
       </div>
 
-      <div style="margin-top:12px" class="muted" id="result">—</div>
+      <div class="status" id="findStatus"></div>
     </div>
 
     <div class="card">
-      <h3 style="margin:0 0 10px">السلة</h3>
-
+      <h3 style="margin:0 0 6px">السلة</h3>
       <table>
         <thead>
           <tr>
@@ -111,190 +102,246 @@
             <th>حذف</th>
           </tr>
         </thead>
-
         <tbody id="cartBody">
           <tr><td colspan="6" class="muted">السلة فاضية</td></tr>
         </tbody>
       </table>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">
-        <div class="total">الإجمالي: <span id="grandTotal">0</span> جنيه</div>
-        <button class="btn" id="checkoutBtn" type="button" disabled style="width:auto">تأكيد (تجريبي)</button>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div style="font-weight:900">الإجمالي: <span id="grand">0</span> جنيه</div>
+        <button class="btnGreen" id="checkoutBtn" disabled>تأكيد وحفظ فاتورة</button>
       </div>
 
-      <div class="muted" style="margin-top:8px">
-        *التأكيد هنا بيعمل فاتورة “وهمية” للتعلم فقط.
-      </div>
+      <div class="status" id="checkoutStatus"></div>
     </div>
   </div>
 
   <script>
-    // ====== تحميل منتجات من اللينك (بدون تخزين) ======
-    function loadProductsFromUrl(){
-      try{
-        const params = new URLSearchParams(location.search);
-        const enc = params.get("products");
-        if(!enc) return null;
+    const sb = window.sb;
 
-        const json = decodeURIComponent(enc);
-        const decoded = decodeURIComponent(escape(atob(json)));
-        const arr = JSON.parse(decoded);
-
-        if(!Array.isArray(arr)) return null;
-
-        const map = {};
-        arr.forEach(p => {
-          if(p && p.code && p.name && Number.isFinite(Number(p.price))){
-            map[String(p.code)] = { name: String(p.name), price: Number(p.price) };
-          }
-        });
-
-        return Object.keys(map).length ? map : null;
-      }catch(e){
-        return null;
-      }
-    }
-
-    // افتراضي لو مفيش لينك
-    const DEFAULT_PRODUCTS = {
-      "1001": { name: "فلتر زيت", price: 85 },
-      "1002": { name: "فلتر هوا", price: 120 },
-      "2001": { name: "بوجيه", price: 55 },
-      "3001": { name: "زيت موتور 1L", price: 180 },
-    };
-
-    const urlProducts = loadProductsFromUrl();
-    const PRODUCTS = urlProducts || DEFAULT_PRODUCTS;
-
-    const sourceNote = document.getElementById("sourceNote");
-    sourceNote.textContent = urlProducts
-      ? "المصدر: منتجات جاية من صفحة Products (بدون تخزين)"
-      : "المصدر: منتجات افتراضية";
-
-    // ====== كود الكاشير ======
-    let selected = null;
-    let cart = [];
+    const who = document.getElementById("who");
 
     const codeEl = document.getElementById("code");
     const qtyEl = document.getElementById("qty");
-    const resultEl = document.getElementById("result");
-    const addBtn = document.getElementById("addBtn");
-    const cartBody = document.getElementById("cartBody");
-    const grandTotalEl = document.getElementById("grandTotal");
-    const checkoutBtn = document.getElementById("checkoutBtn");
     const findBtn = document.getElementById("findBtn");
+    const addBtn = document.getElementById("addBtn");
+    const findStatus = document.getElementById("findStatus");
 
-    function money(n){ return Number(n).toFixed(0); }
+    const cartBody = document.getElementById("cartBody");
+    const grandEl = document.getElementById("grand");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    const checkoutStatus = document.getElementById("checkoutStatus");
 
-    function showMessage(html, ms = 2000){
-      resultEl.innerHTML = html;
-      if(ms > 0){
-        setTimeout(() => { resultEl.textContent = "—"; }, ms);
-      }
+    let selected = null;
+    let cart = [];
+
+    function ok(el, msg){ el.style.color="rgba(255,255,255,.9)"; el.textContent = msg||""; }
+    function err(el, msg){ el.style.color="rgba(239,68,68,.95)"; el.textContent = msg||""; }
+    function esc(s){ return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+    function money(n){ return Number(n||0).toFixed(0); }
+
+    async function showUser(){
+      const { data } = await sb.auth.getUser();
+      who.textContent = data?.user?.email || data?.user?.id || "—";
     }
 
     function renderCart(){
       cartBody.innerHTML = "";
-
       if(cart.length === 0){
-        cartBody.innerHTML = '<tr><td colspan="6" class="muted">السلة فاضية</td></tr>';
-        grandTotalEl.textContent = "0";
+        cartBody.innerHTML = `<tr><td colspan="6" class="muted">السلة فاضية</td></tr>`;
+        grandEl.textContent = "0";
         checkoutBtn.disabled = true;
         return;
       }
 
       let grand = 0;
-
-      cart.forEach((item, idx) => {
-        const line = item.price * item.qty;
+      cart.forEach((it, idx) => {
+        const line = it.price * it.qty;
         grand += line;
-
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${item.code}</td>
-          <td>${item.name}</td>
-          <td>${money(item.price)}</td>
-          <td>${item.qty}</td>
+          <td class="mono">${esc(it.code)}</td>
+          <td>${esc(it.name)}</td>
+          <td>${money(it.price)}</td>
+          <td>${it.qty}</td>
           <td>${money(line)}</td>
-          <td><button class="smallbtn" data-i="${idx}" type="button">حذف</button></td>
+          <td><button data-del="${idx}">حذف</button></td>
         `;
         cartBody.appendChild(tr);
       });
 
-      grandTotalEl.textContent = money(grand);
+      grandEl.textContent = money(grand);
       checkoutBtn.disabled = false;
-
-      cartBody.querySelectorAll("button[data-i]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const i = Number(btn.getAttribute("data-i"));
-          cart.splice(i, 1);
-          renderCart();
-          showMessage('<span class="success">تم الحذف ✅</span>', 1200);
-        });
-      });
     }
 
-    function doFind(){
-      const code = (codeEl.value || "").trim();
-      const p = PRODUCTS[code];
+    cartBody.addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if(!b) return;
+      const i = b.getAttribute("data-del");
+      if(i === null) return;
+      cart.splice(Number(i), 1);
+      renderCart();
+      ok(checkoutStatus, "تم الحذف من السلة ✅");
+    });
 
-      if(!p){
-        selected = null;
-        addBtn.disabled = true;
-        showMessage('<span class="danger">❌ الكود غير موجود</span>', 2000);
+    async function findProduct(){
+      ok(findStatus, "جاري البحث...");
+      selected = null;
+      addBtn.disabled = true;
+
+      const code = (codeEl.value||"").trim();
+      if(!code){
+        err(findStatus, "اكتب كود المنتج");
         return;
       }
 
-      selected = { code, ...p };
+      const { data, error } = await sb
+        .from("products")
+        .select("id, code, name, price, stock")
+        .eq("code", Number.isFinite(Number(code)) ? Number(code) : code) // لو الكود رقم
+        .limit(1);
+
+      if(error){
+        err(findStatus, "خطأ: " + error.message);
+        return;
+      }
+
+      const p = (data && data[0]) ? data[0] : null;
+      if(!p){
+        err(findStatus, "❌ المنتج غير موجود");
+        return;
+      }
+
+      selected = p;
       addBtn.disabled = false;
-      showMessage(`<span class="success">✅ ${p.name}</span> — السعر: ${money(p.price)} جنيه`, 0);
+      ok(findStatus, `✅ ${p.name} — السعر ${money(p.price)} — المخزون ${p.stock}`);
     }
 
-    findBtn.addEventListener("click", doFind);
-
-    codeEl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter"){
-        e.preventDefault();
-        doFind();
-      }
-    });
-
-    addBtn.addEventListener("click", () => {
+    function addToCart(){
       if(!selected) return;
 
       const qty = Math.max(1, Number(qtyEl.value || 1));
+      if(qty > Number(selected.stock || 0)){
+        err(findStatus, `❌ الكمية أكبر من المخزون (المتاح: ${selected.stock})`);
+        return;
+      }
 
-      const existing = cart.find(x => x.code === selected.code);
-      if(existing){
-        existing.qty += qty;
-      }else{
-        cart.push({ code: selected.code, name: selected.name, price: selected.price, qty });
+      const ex = cart.find(x => String(x.product_id) === String(selected.id));
+      if(ex){
+        const newQty = ex.qty + qty;
+        if(newQty > Number(selected.stock || 0)){
+          err(findStatus, `❌ الإجمالي هيبقى أكبر من المخزون (المتاح: ${selected.stock})`);
+          return;
+        }
+        ex.qty = newQty;
+      } else {
+        cart.push({
+          product_id: selected.id,
+          code: selected.code,
+          name: selected.name,
+          price: Number(selected.price),
+          qty
+        });
       }
 
       renderCart();
+      ok(findStatus, "تمت الإضافة للسلة ✅");
 
-      showMessage('<span class="success">تمت الإضافة ✅</span>', 2000);
-
+      // تنظيف
       codeEl.value = "";
       qtyEl.value = "1";
       selected = null;
       addBtn.disabled = true;
       codeEl.focus();
-    });
+    }
 
-    checkoutBtn.addEventListener("click", () => {
-      const invoiceId = "INV-" + Math.floor(Math.random() * 90000 + 10000);
-      alert("✅ تم (تجريبي) إنشاء فاتورة: " + invoiceId + "\nإجمالي: " + grandTotalEl.textContent + " جنيه");
+    async function checkout(){
+      if(cart.length === 0) return;
+
+      ok(checkoutStatus, "جاري إنشاء الفاتورة...");
+
+      // 1) احسب الإجمالي
+      const total = cart.reduce((s, it) => s + it.price * it.qty, 0);
+
+      // 2) اعمل invoice
+      const { data: invData, error: invErr } = await sb
+        .from("invoices")
+        .insert([{ total }])
+        .select("id")
+        .single();
+
+      if(invErr){
+        err(checkoutStatus, "فشل إنشاء الفاتورة: " + invErr.message);
+        return;
+      }
+
+      const invoiceId = invData.id;
+
+      // 3) عناصر الفاتورة
+      const items = cart.map(it => ({
+        invoice_id: invoiceId,
+        product_id: it.product_id,
+        code: it.code,
+        name: it.name,
+        price: it.price,
+        qty: it.qty,
+        line_total: it.price * it.qty
+      }));
+
+      const { error: itemsErr } = await sb.from("invoice_items").insert(items);
+      if(itemsErr){
+        err(checkoutStatus, "فشل حفظ عناصر الفاتورة: " + itemsErr.message);
+        return;
+      }
+
+      // 4) خصم المخزون (نقرأ المخزون الحالي لكل منتج ثم نحدثه)
+      for(const it of cart){
+        const { data: pRow, error: pErr } = await sb
+          .from("products")
+          .select("id, stock")
+          .eq("id", it.product_id)
+          .single();
+
+        if(pErr){
+          err(checkoutStatus, "فشل قراءة مخزون: " + pErr.message);
+          return;
+        }
+
+        const newStock = Number(pRow.stock || 0) - it.qty;
+        if(newStock < 0){
+          err(checkoutStatus, "❌ المخزون اتغير ومبقاش كافي. رجع اختبر تاني.");
+          return;
+        }
+
+        const { error: uErr } = await sb
+          .from("products")
+          .update({ stock: newStock })
+          .eq("id", it.product_id);
+
+        if(uErr){
+          err(checkoutStatus, "فشل خصم المخزون: " + uErr.message);
+          return;
+        }
+      }
+
+      ok(checkoutStatus, `✅ تم حفظ الفاتورة بنجاح (Total: ${money(total)})`);
       cart = [];
       renderCart();
-      resultEl.textContent = "—";
-      codeEl.value = "";
-      qtyEl.value = "1";
-      addBtn.disabled = true;
-      codeEl.focus();
+    }
+
+    findBtn.addEventListener("click", findProduct);
+    addBtn.addEventListener("click", addToCart);
+    checkoutBtn.addEventListener("click", checkout);
+
+    codeEl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter"){ e.preventDefault(); findProduct(); }
     });
 
-    renderCart();
+    (async () => {
+      await showUser();
+      renderCart();
+      ok(findStatus, "اكتب كود واضغط بحث");
+    })();
   </script>
 </body>
-</html> 
+</html>
