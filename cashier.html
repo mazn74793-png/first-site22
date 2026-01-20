@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الكاشير</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;font-family:"Cairo",Arial;background:#0b1220;color:#e8eefc;min-height:100vh;padding:18px}
+    .wrap{max-width:900px;margin:0 auto}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:16px;margin-top:14px}
+    input,button{font-family:"Cairo",Arial}
+    input{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.2);color:#e8eefc;outline:none}
+    .row{display:grid;grid-template-columns:1fr 140px 140px;gap:10px}
+    @media (max-width:700px){.row{grid-template-columns:1fr}}
+    .btn{padding:12px 14px;border-radius:12px;border:0;background:#3b82f6;color:white;font-weight:700;cursor:pointer}
+    .btn2{padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#e8eefc;font-weight:700;cursor:pointer}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.12);text-align:right}
+    .muted{color:#cdd7f3}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.30)}
+    .total{font-size:18px;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="pill">🧾 كاشير (تجربة تعليمية)</div>
+        <h2 style="margin:10px 0 0">إضافة منتج للسلة</h2>
+        <div class="muted">اكتب كود منتج واضغط "بحث"</div>
+      </div>
+      <a class="btn2" href="./index.html">⬅ رجوع</a>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label class="muted">كود المنتج</label>
+          <input id="code" placeholder="مثال: 1001" />
+        </div>
+        <div>
+          <label class="muted">الكمية</label>
+          <input id="qty" type="number" min="1" value="1" />
+        </div>
+        <div style="display:flex;gap:10px;align-items:end">
+          <button class="btn" id="findBtn">بحث</button>
+          <button class="btn2" id="addBtn" disabled>إضافة</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="muted" id="result">—</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px">السلة</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>السعر</th>
+            <th>الكمية</th>
+            <th>الإجمالي</th>
+            <th>حذف</th>
+          </tr>
+        </thead>
+        <tbody id="cartBody">
+          <tr><td colspan="6" class="muted">السلة فاضية</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <div class="total">الإجمالي: <span id="grandTotal">0</span> جنيه</div>
+        <button class="btn" id="checkoutBtn" disabled>تأكيد (تجريبي)</button>
+      </div>
+      <div class="muted" style="margin-top:8px">*التأكيد هنا بيعمل فاتورة “وهمية” للتعلم فقط.</div>
+    </div>
+  </div>
+
+  <script>
+    // قاعدة منتجات بسيطة للتجربة (هنبدّلها لاحقًا بـ Supabase)
+    const PRODUCTS = {
+      "1001": { name: "فلتر زيت", price: 85 },
+      "1002": { name: "فلتر هوا", price: 120 },
+      "2001": { name: "بوجيه", price: 55 },
+      "3001": { name: "زيت موتور 1L", price: 180 },
+    };
+
+    let selected = null;
+    let cart = [];
+
+    const codeEl = document.getElementById("code");
+    const qtyEl = document.getElementById("qty");
+    const resultEl = document.getElementById("result");
+    const addBtn = document.getElementById("addBtn");
+    const cartBody = document.getElementById("cartBody");
+    const grandTotalEl = document.getElementById("grandTotal");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+
+    function money(n){ return Number(n).toFixed(0); }
+
+    function renderCart(){
+      cartBody.innerHTML = "";
+      if(cart.length === 0){
+        cartBody.innerHTML = '<tr><td colspan="6" class="muted">السلة فاضية</td></tr>';
+        grandTotalEl.textContent = "0";
+        checkoutBtn.disabled = true;
+        return;
+      }
+
+      let grand = 0;
+      cart.forEach((item, idx) => {
+        const line = item.price * item.qty;
+        grand += line;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${money(item.price)}</td>
+          <td>${item.qty}</td>
+          <td>${money(line)}</td>
+          <td><button class="btn2" data-i="${idx}">حذف</button></td>
+        `;
+        cartBody.appendChild(tr);
+      });
+
+      grandTotalEl.textContent = money(grand);
+      checkoutBtn.disabled = false;
+
+      // حذف
+      cartBody.querySelectorAll("button[data-i]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const i = Number(btn.getAttribute("data-i"));
+          cart.splice(i, 1);
+          renderCart();
+        });
+      });
+    }
+
+    document.getElementById("findBtn").addEventListener("click", () => {
+      const code = (codeEl.value || "").trim();
+      const p = PRODUCTS[code];
+      if(!p){
+        selected = null;
+        addBtn.disabled = true;
+        resultEl.textContent = "❌ الكود غير موجود. جرّب: 1001 أو 1002 أو 2001 أو 3001";
+        return;
+      }
+      selected = { code, ...p };
+      addBtn.disabled = false;
+      resultEl.textContent = `✅ ${p.name} — السعر: ${money(p.price)} جنيه`;
+    });
+
+    addBtn.addEventListener("click", () => {
+      if(!selected) return;
+      const qty = Math.max(1, Number(qtyEl.value || 1));
+      const existing = cart.find(x => x.code === selected.code);
+      if(existing){
+        existing.qty += qty;
+      }else{
+        cart.push({ code: selected.code, name: selected.name, price: selected.price, qty });
+      }
+      renderCart();
+      resultEl.textContent = "تمت الإضافة ✅";
+      codeEl.value = "";
+      qtyEl.value = "1";
+      selected = null;
+      addBtn.disabled = true;
+    });
+
+    checkoutBtn.addEventListener("click", () => {
+      const invoiceId = "INV-" + Math.floor(Math.random() * 90000 + 10000);
+      alert("✅ تم (تجريبي) إنشاء فاتورة: " + invoiceId + "\\nإجمالي: " + grandTotalEl.textContent + " جنيه");
+      cart = [];
+      renderCart();
+    });
+
+    renderCart();
+  </script>
+</body>
+  </html>
