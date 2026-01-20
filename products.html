@@ -3,61 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <title>المنتجات</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{background:#0f2027;color:white;font-family:Arial;padding:20px}
-input,button{padding:10px;margin:5px}
-.card{background:#1e293b;padding:15px;border-radius:8px;margin-top:10px}
+body{background:#0f172a;color:white;font-family:Arial;padding:20px}
+.card{background:#020617;padding:20px;border-radius:12px;max-width:400px}
+input,button{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none}
+button{background:#2563eb;color:white}
 </style>
 </head>
 <body>
 
-<h2>إضافة منتج</h2>
-<input id="code" placeholder="كود">
-<input id="name" placeholder="اسم">
-<input id="price" placeholder="سعر">
-<input id="stock" placeholder="مخزون">
-<button onclick="add()">حفظ</button>
+<div class="card">
+  <h3>إضافة منتج</h3>
+  <input id="code" placeholder="كود">
+  <input id="name" placeholder="اسم">
+  <input id="price" placeholder="سعر">
+  <input id="stock" placeholder="مخزون">
+  <button onclick="addProduct()">حفظ</button>
 
-<h2>بحث</h2>
-<input id="search" placeholder="كود">
-<button onclick="find()">بحث</button>
+  <h3>بحث</h3>
+  <input id="searchCode" placeholder="كود">
+  <button onclick="searchProduct()">بحث</button>
 
-<div id="result"></div>
+  <div id="result"></div>
+</div>
 
-<script type="module">
-import { supabase } from "./supabaseClient.js";
+<script>
+const supabase = supabaseJs.createClient(
+  "https://rjfkjdjnqqtotvvrmcey.supabase.co",
+  "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp"
+);
 
-async function add(){
+async function addProduct(){
   await supabase.from("products").insert({
-    code:code.value,
-    name:name.value,
-    price:price.value,
-    stock:stock.value
+    code: code.value,
+    name: name.value,
+    price: price.value,
+    stock: stock.value
   });
   alert("تم الحفظ");
 }
 
-async function find(){
+async function searchProduct(){
   const { data } = await supabase
     .from("products")
     .select("*")
-    .eq("code",search.value)
+    .eq("code", searchCode.value)
     .single();
 
-  if(!data){ result.innerText="مش موجود"; return; }
+  if(!data){
+    result.innerText = "مش موجود";
+    return;
+  }
 
   result.innerHTML = `
-    <div class="card">
-      الاسم: ${data.name}<br>
-      السعر: ${data.price}<br>
-      المخزون: ${data.stock}
-    </div>`;
+    الاسم: ${data.name}<br>
+    السعر: ${data.price}<br>
+    المخزون: ${data.stock}
+  `;
 }
-
-window.add=add;
-window.find=find;
 </script>
 
 </body>
 </html>
-
