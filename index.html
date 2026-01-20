@@ -1,141 +1,35 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>موقع مازن</title>
-
-  <!-- خط عربي -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8">
+  <title>لوحة التحكم</title>
   <style>
-    * {
-      box-sizing: border-box;
+    body{
+      background:#0f2027;
+      color:white;
+      font-family:Arial;
+      text-align:center;
+      padding-top:100px;
     }
-
-    body {
-      margin: 0;
-      font-family: "Cairo", Arial, sans-serif;
-      background: linear-gradient(135deg, #0b1220, #020617);
-      color: #e8eefc;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 28px;
-      width: 100%;
-      max-width: 420px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: rgba(59,130,246,0.2);
-      border: 1px solid rgba(59,130,246,0.4);
-      color: #bfdbfe;
-      font-size: 14px;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      margin: 10px 0;
-      font-size: 28px;
-    }
-
-    p {
-      color: #cdd7f3;
-      line-height: 1.8;
-      margin-bottom: 22px;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    a {
-      text-decoration: none;
-    }
-
-    .btn {
-      padding: 12px 20px;
-      border-radius: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
-      display: inline-block;
-    }
-
-    .btn-primary {
-      background: #3b82f6;
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #2563eb;
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: #e8eefc;
-      border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .btn-outline:hover {
-      background: rgba(255,255,255,0.08);
-    }
-
-    footer {
-      margin-top: 18px;
-      font-size: 13px;
-      color: #9aa4bf;
+    a{
+      display:block;
+      margin:15px auto;
+      width:200px;
+      padding:15px;
+      background:#2563eb;
+      color:white;
+      text-decoration:none;
+      border-radius:8px;
     }
   </style>
 </head>
-
 <body>
 
-  <div class="card">
-    <div class="badge">🚀 أول موقع ليا</div>
-
-    <h1>أهلاً 👋 أنا مازن</h1>
-
-    <p>
-      ده أول موقع أعمله بنفسي.  
-      الهدف الجاي إني أعمل نظام مبيعات كامل  
-      (Products + Cashier + Invoices) خطوة خطوة.
-    </p>
-
-    <div class="buttons">
-      <!-- زر الكاشير -->
-      <a href="./cashier.html" class="btn btn-outline">
-        Cashier
-      </a>
-
-      <!-- زر GitHub -->
-      <a href="https://github.com/mazn74793-png" target="_blank" class="btn btn-primary">
-        GitHub
-      </a>
-    </div>
-
-    <footer>
-      Mazen © 2026
-    </footer>
-  </div>
+<h2>لوحة التحكم</h2>
+<a href="products.html">المنتجات</a>
+<a href="cashier.html">الكاشير</a>
+<a href="login.html">تسجيل الخروج</a>
 
 </body>
 </html>
+
