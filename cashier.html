@@ -1,136 +1,44 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>الكاشير</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .box {
-      background: rgba(0,0,0,0.4);
-      padding: 20px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-
-    input {
-      background: #1c2b33;
-      color: white;
-    }
-
-    button {
-      background: #3b82f6;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #2563eb;
-    }
-
-    .result {
-      margin-top: 15px;
-      background: rgba(255,255,255,0.1);
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .error {
-      color: #ff6b6b;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>الكاشير</title>
+<style>
+body{background:#0f2027;color:white;font-family:Arial;padding:20px}
+input,button{padding:10px;margin:5px}
+.card{background:#1e293b;padding:15px;border-radius:8px}
+</style>
 </head>
-
 <body>
 
-  <div class="box">
-    <h2>💰 الكاشير</h2>
+<h2>الكاشير</h2>
+<input id="code" placeholder="كود المنتج">
+<button onclick="search()">بحث</button>
 
-    <input
-      type="text"
-      id="productCode"
-      placeholder="اكتب كود المنتج"
-    >
+<div id="out"></div>
 
-    <button onclick="searchProduct()">بحث</button>
+<script type="module">
+import { supabase } from "./supabaseClient.js";
 
-    <div id="result" class="result"></div>
-  </div>
+async function search(){
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .eq("code",code.value)
+    .single();
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  if(!data){ out.innerText="مش موجود"; return; }
 
-  <script>
-    const supabaseUrl = "https://rjfkjdjnqqtotvvrmcey.supabase.co";
-    const supabaseKey = "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp";
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-    async function searchProduct() {
-      const code = document.getElementById("productCode").value.trim();
-      const resultDiv = document.getElementById("result");
-
-      resultDiv.innerHTML = "";
-
-      if (!code) {
-        resultDiv.innerHTML = "<span class='error'>اكتب كود المنتج</span>";
-        return;
-      }
-
-      const { data, error } = await supabaseClient
-        .from("products")
-        .select("*")
-        .eq("code", code)
-        .limit(1);
-
-      if (error) {
-        resultDiv.innerHTML =
-          "<span class='error'>خطأ في الاتصال بقاعدة البيانات</span>";
-        console.log(error);
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        resultDiv.innerHTML =
-          "<span class='error'>المنتج غير موجود</span>";
-        return;
-      }
-
-      const p = data[0];
-
-      resultDiv.innerHTML = `
-        <b>الاسم:</b> ${p.name}<br>
-        <b>السعر:</b> ${p.price} جنيه<br>
-        <b>المخزون:</b> ${p.stock}
-      `;
-    }
-  </script>
+  out.innerHTML=`
+    <div class="card">
+      الاسم: ${data.name}<br>
+      السعر: ${data.price}<br>
+      المخزون: ${data.stock}
+    </div>`;
+}
+window.search=search;
+</script>
 
 </body>
-</html> 
+</html>
+
