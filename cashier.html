@@ -68,11 +68,12 @@
       <div>
         <div class="pill">🧾 كاشير (تجربة تعليمية)</div>
         <h2 style="margin:10px 0 0">إضافة منتج للسلة</h2>
-        <div class="muted">اكتب كود منتج واضغط "بحث" ثم "إضافة"</div>
+        <div class="muted" id="sourceNote">المصدر: منتجات افتراضية</div>
       </div>
-      <a href="./index.html" style="text-decoration:none">
-        <button class="btn2" style="width:auto">⬅ رجوع</button>
-      </a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="./index.html" style="text-decoration:none"><button class="btn2" style="width:auto">⬅ رجوع</button></a>
+        <a href="./products.html" style="text-decoration:none"><button class="btn" style="width:auto">إدارة المنتجات</button></a>
+      </div>
     </div>
 
     <div class="card">
@@ -128,14 +129,49 @@
   </div>
 
   <script>
-    // قاعدة منتجات بسيطة للتجربة (هنبدّلها لاحقًا بـ Supabase)
-    const PRODUCTS = {
+    // ====== تحميل منتجات من اللينك (بدون تخزين) ======
+    function loadProductsFromUrl(){
+      try{
+        const params = new URLSearchParams(location.search);
+        const enc = params.get("products");
+        if(!enc) return null;
+
+        const json = decodeURIComponent(enc);
+        const decoded = decodeURIComponent(escape(atob(json)));
+        const arr = JSON.parse(decoded);
+
+        if(!Array.isArray(arr)) return null;
+
+        const map = {};
+        arr.forEach(p => {
+          if(p && p.code && p.name && Number.isFinite(Number(p.price))){
+            map[String(p.code)] = { name: String(p.name), price: Number(p.price) };
+          }
+        });
+
+        return Object.keys(map).length ? map : null;
+      }catch(e){
+        return null;
+      }
+    }
+
+    // افتراضي لو مفيش لينك
+    const DEFAULT_PRODUCTS = {
       "1001": { name: "فلتر زيت", price: 85 },
       "1002": { name: "فلتر هوا", price: 120 },
       "2001": { name: "بوجيه", price: 55 },
       "3001": { name: "زيت موتور 1L", price: 180 },
     };
 
+    const urlProducts = loadProductsFromUrl();
+    const PRODUCTS = urlProducts || DEFAULT_PRODUCTS;
+
+    const sourceNote = document.getElementById("sourceNote");
+    sourceNote.textContent = urlProducts
+      ? "المصدر: منتجات جاية من صفحة Products (بدون تخزين)"
+      : "المصدر: منتجات افتراضية";
+
+    // ====== كود الكاشير ======
     let selected = null;
     let cart = [];
 
@@ -205,7 +241,7 @@
       if(!p){
         selected = null;
         addBtn.disabled = true;
-        showMessage('<span class="danger">❌ الكود غير موجود</span> — جرّب: 1001 / 1002 / 2001 / 3001', 2500);
+        showMessage('<span class="danger">❌ الكود غير موجود</span>', 2000);
         return;
       }
 
@@ -216,7 +252,6 @@
 
     findBtn.addEventListener("click", doFind);
 
-    // Enter في خانة الكود يعمل "بحث"
     codeEl.addEventListener("keydown", (e) => {
       if(e.key === "Enter"){
         e.preventDefault();
@@ -238,7 +273,6 @@
 
       renderCart();
 
-      // تحسينات: رسالة تختفي + تنظيف + منع ضغط إضافة بالغلط
       showMessage('<span class="success">تمت الإضافة ✅</span>', 2000);
 
       codeEl.value = "";
