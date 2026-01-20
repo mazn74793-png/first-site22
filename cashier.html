@@ -3,42 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <title>الكاشير</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{background:#0f2027;color:white;font-family:Arial;padding:20px}
-input,button{padding:10px;margin:5px}
-.card{background:#1e293b;padding:15px;border-radius:8px}
+body{background:#0f172a;color:white;font-family:Arial;padding:20px}
+.card{background:#020617;padding:20px;border-radius:12px;max-width:400px}
+input,button{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none}
+button{background:#16a34a;color:white}
 </style>
 </head>
 <body>
 
-<h2>الكاشير</h2>
-<input id="code" placeholder="كود المنتج">
-<button onclick="search()">بحث</button>
+<div class="card">
+  <h3>الكاشير</h3>
+  <input id="code" placeholder="كود المنتج">
+  <button onclick="search()">بحث</button>
+  <div id="out"></div>
+</div>
 
-<div id="out"></div>
-
-<script type="module">
-import { supabase } from "./supabaseClient.js";
+<script>
+const supabase = supabaseJs.createClient(
+  "https://rjfkjdjnqqtotvvrmcey.supabase.co",
+  "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp"
+);
 
 async function search(){
   const { data } = await supabase
     .from("products")
     .select("*")
-    .eq("code",code.value)
+    .eq("code", code.value)
     .single();
 
-  if(!data){ out.innerText="مش موجود"; return; }
+  if(!data){
+    out.innerText = "مش موجود";
+    return;
+  }
 
-  out.innerHTML=`
-    <div class="card">
-      الاسم: ${data.name}<br>
-      السعر: ${data.price}<br>
-      المخزون: ${data.stock}
-    </div>`;
+  out.innerHTML = `
+    الاسم: ${data.name}<br>
+    السعر: ${data.price}<br>
+    المخزون: ${data.stock}
+  `;
 }
-window.search=search;
 </script>
 
 </body>
 </html>
-
