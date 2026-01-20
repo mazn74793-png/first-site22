@@ -4,25 +4,62 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>الكاشير</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    body{margin:0;font-family:"Cairo",Arial;background:#0b1220;color:#e8eefc;min-height:100vh;padding:18px}
-    .wrap{max-width:900px;margin:0 auto}
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:"Cairo",Arial;
+      background:linear-gradient(135deg,#0b1220,#020617);
+      color:#e8eefc;min-height:100vh;padding:18px
+    }
+    .wrap{max-width:980px;margin:0 auto}
     .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:16px;margin-top:14px}
+    .pill{
+      display:inline-block;padding:6px 10px;border-radius:999px;
+      background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.30)
+    }
+    .card{
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:16px;padding:16px;margin-top:14px;
+      box-shadow:0 16px 36px rgba(0,0,0,.25)
+    }
+    .muted{color:#cdd7f3}
+    .row{display:grid;grid-template-columns:1fr 170px 260px;gap:10px}
+    @media (max-width:760px){.row{grid-template-columns:1fr}}
+    label{display:block;margin:0 0 6px}
     input,button{font-family:"Cairo",Arial}
-    input{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.2);color:#e8eefc;outline:none}
-    .row{display:grid;grid-template-columns:1fr 140px 140px;gap:10px}
-    @media (max-width:700px){.row{grid-template-columns:1fr}}
-    .btn{padding:12px 14px;border-radius:12px;border:0;background:#3b82f6;color:white;font-weight:700;cursor:pointer}
-    .btn2{padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#e8eefc;font-weight:700;cursor:pointer}
+    input{
+      width:100%;padding:12px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.2);color:#e8eefc;outline:none
+    }
+    .btn{
+      padding:12px 14px;border-radius:12px;border:0;
+      background:#3b82f6;color:white;font-weight:700;cursor:pointer;
+      width:100%;
+    }
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn2{
+      padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);
+      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer;
+      width:100%;
+    }
     table{width:100%;border-collapse:collapse;margin-top:10px}
     th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.12);text-align:right}
-    .muted{color:#cdd7f3}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.30)}
+    th{color:#dbe7ff}
     .total{font-size:18px;font-weight:700}
+    .actions{display:flex;gap:10px;align-items:end}
+    .smallbtn{
+      padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);
+      background:transparent;color:#e8eefc;font-weight:700;cursor:pointer
+    }
+    .success{color:#86efac}
+    .danger{color:#fca5a5}
   </style>
 </head>
 <body>
@@ -31,24 +68,28 @@
       <div>
         <div class="pill">🧾 كاشير (تجربة تعليمية)</div>
         <h2 style="margin:10px 0 0">إضافة منتج للسلة</h2>
-        <div class="muted">اكتب كود منتج واضغط "بحث"</div>
+        <div class="muted">اكتب كود منتج واضغط "بحث" ثم "إضافة"</div>
       </div>
-      <a class="btn2" href="./index.html">⬅ رجوع</a>
+      <a href="./index.html" style="text-decoration:none">
+        <button class="btn2" style="width:auto">⬅ رجوع</button>
+      </a>
     </div>
 
     <div class="card">
       <div class="row">
         <div>
           <label class="muted">كود المنتج</label>
-          <input id="code" placeholder="مثال: 1001" />
+          <input id="code" placeholder="مثال: 1001" inputmode="numeric" />
         </div>
+
         <div>
           <label class="muted">الكمية</label>
           <input id="qty" type="number" min="1" value="1" />
         </div>
-        <div style="display:flex;gap:10px;align-items:end">
-          <button class="btn" id="findBtn">بحث</button>
-          <button class="btn2" id="addBtn" disabled>إضافة</button>
+
+        <div class="actions">
+          <button class="btn2" id="findBtn">بحث</button>
+          <button class="btn" id="addBtn" disabled>إضافة</button>
         </div>
       </div>
 
@@ -57,6 +98,7 @@
 
     <div class="card">
       <h3 style="margin:0 0 10px">السلة</h3>
+
       <table>
         <thead>
           <tr>
@@ -68,6 +110,7 @@
             <th>حذف</th>
           </tr>
         </thead>
+
         <tbody id="cartBody">
           <tr><td colspan="6" class="muted">السلة فاضية</td></tr>
         </tbody>
@@ -75,9 +118,12 @@
 
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px">
         <div class="total">الإجمالي: <span id="grandTotal">0</span> جنيه</div>
-        <button class="btn" id="checkoutBtn" disabled>تأكيد (تجريبي)</button>
+        <button class="btn" id="checkoutBtn" disabled style="width:auto">تأكيد (تجريبي)</button>
       </div>
-      <div class="muted" style="margin-top:8px">*التأكيد هنا بيعمل فاتورة “وهمية” للتعلم فقط.</div>
+
+      <div class="muted" style="margin-top:8px">
+        *التأكيد هنا بيعمل فاتورة “وهمية” للتعلم فقط.
+      </div>
     </div>
   </div>
 
@@ -105,6 +151,7 @@
 
     function renderCart(){
       cartBody.innerHTML = "";
+
       if(cart.length === 0){
         cartBody.innerHTML = '<tr><td colspan="6" class="muted">السلة فاضية</td></tr>';
         grandTotalEl.textContent = "0";
@@ -113,6 +160,7 @@
       }
 
       let grand = 0;
+
       cart.forEach((item, idx) => {
         const line = item.price * item.qty;
         grand += line;
@@ -124,7 +172,7 @@
           <td>${money(item.price)}</td>
           <td>${item.qty}</td>
           <td>${money(line)}</td>
-          <td><button class="btn2" data-i="${idx}">حذف</button></td>
+          <td><button class="smallbtn" data-i="${idx}">حذف</button></td>
         `;
         cartBody.appendChild(tr);
       });
@@ -132,7 +180,7 @@
       grandTotalEl.textContent = money(grand);
       checkoutBtn.disabled = false;
 
-      // حذف
+      // حذف عنصر
       cartBody.querySelectorAll("button[data-i]").forEach(btn => {
         btn.addEventListener("click", () => {
           const i = Number(btn.getAttribute("data-i"));
@@ -145,28 +193,34 @@
     document.getElementById("findBtn").addEventListener("click", () => {
       const code = (codeEl.value || "").trim();
       const p = PRODUCTS[code];
+
       if(!p){
         selected = null;
         addBtn.disabled = true;
-        resultEl.textContent = "❌ الكود غير موجود. جرّب: 1001 أو 1002 أو 2001 أو 3001";
+        resultEl.innerHTML = '<span class="danger">❌ الكود غير موجود</span> — جرّب: 1001 / 1002 / 2001 / 3001';
         return;
       }
+
       selected = { code, ...p };
       addBtn.disabled = false;
-      resultEl.textContent = `✅ ${p.name} — السعر: ${money(p.price)} جنيه`;
+      resultEl.innerHTML = `<span class="success">✅ ${p.name}</span> — السعر: ${money(p.price)} جنيه`;
     });
 
     addBtn.addEventListener("click", () => {
       if(!selected) return;
+
       const qty = Math.max(1, Number(qtyEl.value || 1));
+
       const existing = cart.find(x => x.code === selected.code);
       if(existing){
         existing.qty += qty;
       }else{
         cart.push({ code: selected.code, name: selected.name, price: selected.price, qty });
       }
+
       renderCart();
-      resultEl.textContent = "تمت الإضافة ✅";
+
+      resultEl.innerHTML = '<span class="success">تمت الإضافة ✅</span>';
       codeEl.value = "";
       qtyEl.value = "1";
       selected = null;
@@ -178,9 +232,11 @@
       alert("✅ تم (تجريبي) إنشاء فاتورة: " + invoiceId + "\\nإجمالي: " + grandTotalEl.textContent + " جنيه");
       cart = [];
       renderCart();
+      resultEl.textContent = "—";
     });
 
+    // أول رسم
     renderCart();
   </script>
 </body>
-  </html>
+</html>
