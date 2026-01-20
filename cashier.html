@@ -1,244 +1,136 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>الكاشير</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body{background:linear-gradient(135deg,#0b1220,#0b1a2a);}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      background: rgba(0,0,0,0.4);
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input {
+      background: #1c2b33;
+      color: white;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .result {
+      margin-top: 15px;
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
   </style>
 </head>
 
-<body class="min-h-screen text-white">
-  <div class="max-w-3xl mx-auto px-4 pt-6">
+<body>
 
-    <!-- Top bar -->
-    <div class="flex items-center justify-between">
-      <a href="./products.html" class="px-4 py-2 rounded-xl bg-white/10 border border-white/10">المنتجات</a>
+  <div class="box">
+    <h2>💰 الكاشير</h2>
 
-      <div class="text-right">
-        <div class="text-xl font-bold">🧾 الكاشير</div>
-        <div class="text-white/70 text-sm">بحث → إضافة → تأكيد</div>
-      </div>
+    <input
+      type="text"
+      id="productCode"
+      placeholder="اكتب كود المنتج"
+    >
 
-      <button id="logoutBtn" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200">
-        خروج
-      </button>
-    </div>
+    <button onclick="searchProduct()">بحث</button>
 
-    <!-- Search -->
-    <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
-      <div class="text-lg font-bold mb-2">بحث عن منتج</div>
-
-      <div class="grid gap-3">
-        <input id="code" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="كود المنتج (رقم)" />
-        <input id="qty" type="number" min="1" value="1" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="الكمية" />
-      </div>
-
-      <div class="mt-4 flex gap-3">
-        <button id="findBtn" class="flex-1 p-4 rounded-2xl bg-blue-500 hover:bg-blue-600 font-bold">بحث</button>
-        <button id="addBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">إضافة</button>
-      </div>
-
-      <div id="found" class="mt-4 text-center text-sm"></div>
-      <div id="msg" class="mt-2 text-center text-sm"></div>
-    </div>
-
-    <!-- Cart -->
-    <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-lg font-bold">السلة</div>
-        <div class="text-white/70 text-sm">الإجمالي: <span id="total">0</span> جنيه</div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="text-white/70">
-            <tr class="border-b border-white/10">
-              <th class="py-3 text-right">الكود</th>
-              <th class="py-3 text-right">الاسم</th>
-              <th class="py-3 text-right">السعر</th>
-              <th class="py-3 text-right">الكمية</th>
-              <th class="py-3 text-right">الإجمالي</th>
-              <th class="py-3 text-right">حذف</th>
-            </tr>
-          </thead>
-          <tbody id="rows">
-            <tr><td colspan="6" class="py-6 text-center text-white/60">السلة فاضية</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mt-4 flex gap-3">
-        <button id="confirmBtn" class="flex-1 p-4 rounded-2xl bg-green-500 hover:bg-green-600 font-bold">تأكيد</button>
-        <button id="clearBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">تفريغ</button>
-      </div>
-    </div>
-
-    <div class="h-10"></div>
+    <div id="result" class="result"></div>
   </div>
 
-  <!-- Supabase client -->
-  <script src="./supabase.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    const sb = window.supabaseClient || window.supabase;
+    const supabaseUrl = "https://rjfkjdjnqqtotvvrmcey.supabase.co";
+    const supabaseKey = "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const codeEl = document.getElementById("code");
-    const qtyEl = document.getElementById("qty");
-    const found = document.getElementById("found");
-    const msg = document.getElementById("msg");
-    const rowsEl = document.getElementById("rows");
-    const totalEl = document.getElementById("total");
+    async function searchProduct() {
+      const code = document.getElementById("productCode").value.trim();
+      const resultDiv = document.getElementById("result");
 
-    let session = null;
-    let lastFound = null;
-    const cart = new Map();
+      resultDiv.innerHTML = "";
 
-    function ok(el, t){ el.className="mt-4 text-center text-sm text-green-300"; el.textContent=t||""; }
-    function err(el, t){ el.className="mt-4 text-center text-sm text-red-300"; el.textContent=t||""; }
-
-    async function requireAuth(){
-      const { data } = await sb.auth.getSession();
-      if(!data.session){
-        location.href = "./login.html";
-        return null;
-      }
-      session = data.session;
-      return session;
-    }
-
-    function renderCart(){
-      const items = Array.from(cart.values());
-      if(items.length === 0){
-        rowsEl.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-white/60">السلة فاضية</td></tr>`;
-        totalEl.textContent = "0";
+      if (!code) {
+        resultDiv.innerHTML = "<span class='error'>اكتب كود المنتج</span>";
         return;
       }
-      let total = 0;
-      rowsEl.innerHTML = "";
-      items.forEach(it=>{
-        const line = it.price * it.qty;
-        total += line;
-        const tr = document.createElement("tr");
-        tr.className="border-b border-white/10";
-        tr.innerHTML = `
-          <td class="py-3">${it.code}</td>
-          <td class="py-3">${it.name}</td>
-          <td class="py-3">${it.price}</td>
-          <td class="py-3">${it.qty}</td>
-          <td class="py-3">${line}</td>
-          <td class="py-3"><button data-del="${it.product_id}" class="text-red-300">حذف</button></td>
-        `;
-        rowsEl.appendChild(tr);
-      });
-      totalEl.textContent = String(total);
 
-      rowsEl.querySelectorAll("[data-del]").forEach(b=>{
-        b.onclick = ()=>{ cart.delete(b.dataset.del); renderCart(); };
-      });
-    }
-
-    async function findProduct(){
-      ok(found,"");
-      err(msg,"");
-      const code = codeEl.value.trim();
-      if(!code){ err(found,"اكتب كود المنتج"); return; }
-
-      await requireAuth();
-
-      const { data, error } = await sb
+      const { data, error } = await supabaseClient
         .from("products")
-        .select("id,code,name,price,stock")
-        .eq("code", Number(code))   // مهم جدًا
-        .single();
+        .select("*")
+        .eq("code", code)
+        .limit(1);
 
-      if(error || !data){
-        lastFound = null;
-        err(found,"❌ المنتج غير موجود");
+      if (error) {
+        resultDiv.innerHTML =
+          "<span class='error'>خطأ في الاتصال بقاعدة البيانات</span>";
+        console.log(error);
         return;
       }
 
-      lastFound = data;
-      ok(found,`✅ ${data.name} | السعر ${data.price} | المخزون ${data.stock}`);
-    }
-
-    function addToCart(){
-      err(msg,"");
-      if(!lastFound){ err(msg,"لازم تبحث الأول"); return; }
-
-      const q = Math.max(1, Number(qtyEl.value||1));
-      if(q > lastFound.stock){ err(msg,"الكمية أكبر من المخزون"); return; }
-
-      const id = String(lastFound.id);
-      const ex = cart.get(id);
-      const newQty = (ex?ex.qty:0) + q;
-      if(newQty > lastFound.stock){ err(msg,"الإجمالي أكبر من المخزون"); return; }
-
-      cart.set(id,{
-        product_id:id,
-        code:lastFound.code,
-        name:lastFound.name,
-        price:Number(lastFound.price),
-        qty:newQty
-      });
-      ok(msg,"تمت الإضافة للسلة");
-      renderCart();
-      lastFound=null; codeEl.value=""; qtyEl.value=1;
-    }
-
-    async function confirm(){
-      err(msg,"");
-      const items = Array.from(cart.values());
-      if(items.length===0){ err(msg,"السلة فاضية"); return; }
-
-      await requireAuth();
-
-      const total = items.reduce((s,i)=>s+i.price*i.qty,0);
-
-      const inv = await sb.from("invoices")
-        .insert({ user_id: session.user.id, total })
-        .select("id").single();
-
-      if(inv.error){ err(msg,inv.error.message); return; }
-
-      const invoice_id = inv.data.id;
-
-      const itemsPayload = items.map(i=>({
-        user_id: session.user.id,
-        invoice_id,
-        product_id:i.product_id,
-        code:i.code,
-        name:i.name,
-        price:i.price,
-        qty:i.qty,
-        line_total:i.price*i.qty
-      }));
-
-      const itRes = await sb.from("invoice_items").insert(itemsPayload);
-      if(itRes.error){ err(msg,itRes.error.message); return; }
-
-      for(const i of items){
-        const p = await sb.from("products").select("stock").eq("id",i.product_id).single();
-        if(p.error){ err(msg,p.error.message); return; }
-        const newStock = p.data.stock - i.qty;
-        const u = await sb.from("products").update({ stock:newStock }).eq("id",i.product_id);
-        if(u.error){ err(msg,u.error.message); return; }
+      if (!data || data.length === 0) {
+        resultDiv.innerHTML =
+          "<span class='error'>المنتج غير موجود</span>";
+        return;
       }
 
-      cart.clear();
-      renderCart();
-      ok(msg,"✅ تم التأكيد وخصم المخزون");
+      const p = data[0];
+
+      resultDiv.innerHTML = `
+        <b>الاسم:</b> ${p.name}<br>
+        <b>السعر:</b> ${p.price} جنيه<br>
+        <b>المخزون:</b> ${p.stock}
+      `;
     }
-
-    document.getElementById("findBtn").onclick = findProduct;
-    document.getElementById("addBtn").onclick = addToCart;
-    document.getElementById("confirmBtn").onclick = confirm;
-    document.getElementById("clearBtn").onclick = ()=>{ cart.clear(); renderCart(); };
-    document.getElementById("logoutBtn").onclick = async ()=>{ await sb.auth.signOut(); location.href="./login.html"; };
-
-    requireAuth();
   </script>
+
 </body>
 </html> 
