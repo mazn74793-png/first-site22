@@ -1,6 +1,6 @@
-// supabase.js
-const SUPABASE_URL = "https://rjfkjdjnqqtotvvrmcey.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-// لازم يكون supabase-js اتعمله تحميل قبل الملف ده
-window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(
+  "https://rjfkjdjnqqtotvvrmcey.supabase.co",
+  "sb_publishable_xMQrZWmWH2EfnaxcCcbBNA_OpHO66Bp"
+);
