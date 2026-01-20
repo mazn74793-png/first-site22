@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cashier</title>
+  <title>الكاشير</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body{background:linear-gradient(135deg,#0b1220,#0b1a2a);}
@@ -15,11 +15,11 @@
 
     <!-- Top bar -->
     <div class="flex items-center justify-between">
-      <a href="./index.html" class="px-4 py-2 rounded-xl bg-white/10 border border-white/10">رجوع</a>
+      <a href="./products.html" class="px-4 py-2 rounded-xl bg-white/10 border border-white/10">المنتجات</a>
 
       <div class="text-right">
-        <div class="text-xl font-bold">🧾 كاشير</div>
-        <div class="text-white/70 text-sm">تجربة تعليمية</div>
+        <div class="text-xl font-bold">🧾 الكاشير</div>
+        <div class="text-white/70 text-sm">بحث → إضافة → تأكيد</div>
       </div>
 
       <button id="logoutBtn" class="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200">
@@ -27,13 +27,12 @@
       </button>
     </div>
 
-    <!-- Add item card -->
+    <!-- Search -->
     <div class="mt-6 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur">
-      <div class="text-lg font-bold mb-2">إضافة منتج للسلة</div>
-      <div class="text-white/70 text-sm mb-4">اكتب كود المنتج واضغط "بحث" ثم اختر الكمية واضغط "إضافة"</div>
+      <div class="text-lg font-bold mb-2">بحث عن منتج</div>
 
       <div class="grid gap-3">
-        <input id="code" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="كود المنتج (مثال: 1001)" />
+        <input id="code" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="كود المنتج (رقم)" />
         <input id="qty" type="number" min="1" value="1" class="w-full p-4 rounded-2xl bg-black/20 border border-white/10 outline-none" placeholder="الكمية" />
       </div>
 
@@ -42,7 +41,7 @@
         <button id="addBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">إضافة</button>
       </div>
 
-      <div id="found" class="mt-4 text-center text-sm text-white/80"></div>
+      <div id="found" class="mt-4 text-center text-sm"></div>
       <div id="msg" class="mt-2 text-center text-sm"></div>
     </div>
 
@@ -72,56 +71,33 @@
       </div>
 
       <div class="mt-4 flex gap-3">
-        <button id="confirmBtn" class="flex-1 p-4 rounded-2xl bg-blue-500 hover:bg-blue-600 font-bold">تأكيد</button>
+        <button id="confirmBtn" class="flex-1 p-4 rounded-2xl bg-green-500 hover:bg-green-600 font-bold">تأكيد</button>
         <button id="clearBtn" class="flex-1 p-4 rounded-2xl bg-white/10 border border-white/10">تفريغ</button>
-      </div>
-
-      <div class="mt-3 text-center text-xs text-white/60">
-        * التأكيد هنا بيعمل فاتورة + يخصم مخزون (فعليًا على Supabase)
       </div>
     </div>
 
     <div class="h-10"></div>
   </div>
 
-  <!-- Must exist -->
+  <!-- Supabase client -->
   <script src="./supabase.js"></script>
 
   <script>
     const sb = window.supabaseClient || window.supabase;
 
-    const msg = document.getElementById("msg");
+    const codeEl = document.getElementById("code");
+    const qtyEl = document.getElementById("qty");
     const found = document.getElementById("found");
+    const msg = document.getElementById("msg");
     const rowsEl = document.getElementById("rows");
     const totalEl = document.getElementById("total");
 
-    const codeEl = document.getElementById("code");
-    const qtyEl = document.getElementById("qty");
-
     let session = null;
-    let lastFoundProduct = null;
-
-    // cart: key = product_id
+    let lastFound = null;
     const cart = new Map();
 
-    function setMsg(text, ok=true){
-      msg.className = "mt-2 text-center text-sm " + (ok ? "text-green-200" : "text-red-300");
-      msg.textContent = text || "";
-    }
-
-    function setFound(text, ok=true){
-      found.className = "mt-4 text-center text-sm " + (ok ? "text-green-200" : "text-red-300");
-      found.textContent = text || "";
-    }
-
-    function escapeHtml(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+    function ok(el, t){ el.className="mt-4 text-center text-sm text-green-300"; el.textContent=t||""; }
+    function err(el, t){ el.className="mt-4 text-center text-sm text-red-300"; el.textContent=t||""; }
 
     async function requireAuth(){
       const { data } = await sb.auth.getSession();
@@ -140,220 +116,129 @@
         totalEl.textContent = "0";
         return;
       }
-
       let total = 0;
       rowsEl.innerHTML = "";
-      for(const it of items){
-        const line = Number(it.price) * Number(it.qty);
+      items.forEach(it=>{
+        const line = it.price * it.qty;
         total += line;
-
         const tr = document.createElement("tr");
-        tr.className = "border-b border-white/10";
+        tr.className="border-b border-white/10";
         tr.innerHTML = `
-          <td class="py-3">${escapeHtml(it.code)}</td>
-          <td class="py-3">${escapeHtml(it.name)}</td>
-          <td class="py-3">${Number(it.price)}</td>
-          <td class="py-3">
-            <input type="number" min="1" class="w-20 p-2 rounded-xl bg-black/20 border border-white/10 outline-none"
-              value="${Number(it.qty)}" data-qty="${it.product_id}">
-          </td>
+          <td class="py-3">${it.code}</td>
+          <td class="py-3">${it.name}</td>
+          <td class="py-3">${it.price}</td>
+          <td class="py-3">${it.qty}</td>
           <td class="py-3">${line}</td>
-          <td class="py-3">
-            <button class="px-3 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-200" data-del="${it.product_id}">حذف</button>
-          </td>
+          <td class="py-3"><button data-del="${it.product_id}" class="text-red-300">حذف</button></td>
         `;
         rowsEl.appendChild(tr);
-      }
-
+      });
       totalEl.textContent = String(total);
 
-      // bind qty change
-      rowsEl.querySelectorAll("[data-qty]").forEach(inp=>{
-        inp.addEventListener("input", ()=>{
-          const id = inp.getAttribute("data-qty");
-          const v = Math.max(1, Number(inp.value || 1));
-          const it = cart.get(id);
-          if(it){
-            it.qty = v;
-            cart.set(id, it);
-            renderCart();
-          }
-        });
-      });
-
-      // bind delete
-      rowsEl.querySelectorAll("[data-del]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.getAttribute("data-del");
-          cart.delete(id);
-          renderCart();
-        });
+      rowsEl.querySelectorAll("[data-del]").forEach(b=>{
+        b.onclick = ()=>{ cart.delete(b.dataset.del); renderCart(); };
       });
     }
 
     async function findProduct(){
-      setMsg("");
-      setFound("");
+      ok(found,"");
+      err(msg,"");
+      const code = codeEl.value.trim();
+      if(!code){ err(found,"اكتب كود المنتج"); return; }
 
-      const code = (codeEl.value || "").trim();
-      if(!code){
-        setFound("اكتب كود المنتج.", false);
-        return;
-      }
-
-      // make sure auth exists
       await requireAuth();
 
       const { data, error } = await sb
         .from("products")
         .select("id,code,name,price,stock")
-        .eq("code", code)
+        .eq("code", Number(code))   // مهم جدًا
         .single();
 
-      if(error){
-        lastFoundProduct = null;
-        setFound("مش لاقي المنتج بالكود ده.", false);
+      if(error || !data){
+        lastFound = null;
+        err(found,"❌ المنتج غير موجود");
         return;
       }
 
-      lastFoundProduct = data;
-      setFound(`✅ ${data.name} — السعر: ${Number(data.price)} جنيه — المخزون: ${Number(data.stock)}`);
+      lastFound = data;
+      ok(found,`✅ ${data.name} | السعر ${data.price} | المخزون ${data.stock}`);
     }
 
     function addToCart(){
-      setMsg("");
-      if(!lastFoundProduct){
-        setMsg("اعمل بحث الأول.", false);
-        return;
-      }
+      err(msg,"");
+      if(!lastFound){ err(msg,"لازم تبحث الأول"); return; }
 
-      const q = Math.max(1, Number(qtyEl.value || 1));
-      const stock = Number(lastFoundProduct.stock || 0);
+      const q = Math.max(1, Number(qtyEl.value||1));
+      if(q > lastFound.stock){ err(msg,"الكمية أكبر من المخزون"); return; }
 
-      if(q > stock){
-        setMsg(`الكمية أكبر من المخزون (المتاح: ${stock}).`, false);
-        return;
-      }
+      const id = String(lastFound.id);
+      const ex = cart.get(id);
+      const newQty = (ex?ex.qty:0) + q;
+      if(newQty > lastFound.stock){ err(msg,"الإجمالي أكبر من المخزون"); return; }
 
-      const id = String(lastFoundProduct.id);
-      const existing = cart.get(id);
-      const newQty = (existing ? existing.qty : 0) + q;
-
-      if(newQty > stock){
-        setMsg(`الإجمالي في السلة أكبر من المخزون (المتاح: ${stock}).`, false);
-        return;
-      }
-
-      cart.set(id, {
-        product_id: id,
-        code: lastFoundProduct.code,
-        name: lastFoundProduct.name,
-        price: Number(lastFoundProduct.price || 0),
-        qty: newQty
+      cart.set(id,{
+        product_id:id,
+        code:lastFound.code,
+        name:lastFound.name,
+        price:Number(lastFound.price),
+        qty:newQty
       });
-
-      setMsg("تمت الإضافة ✅");
+      ok(msg,"تمت الإضافة للسلة");
       renderCart();
+      lastFound=null; codeEl.value=""; qtyEl.value=1;
     }
 
     async function confirm(){
-      setMsg("");
-
+      err(msg,"");
       const items = Array.from(cart.values());
-      if(items.length === 0){
-        setMsg("السلة فاضية.", false);
-        return;
-      }
+      if(items.length===0){ err(msg,"السلة فاضية"); return; }
 
       await requireAuth();
 
-      // Calculate total
-      const total = items.reduce((s,it)=> s + (Number(it.price)*Number(it.qty)), 0);
+      const total = items.reduce((s,i)=>s+i.price*i.qty,0);
 
-      // 1) Create invoice
-      const invoicePayload = {
+      const inv = await sb.from("invoices")
+        .insert({ user_id: session.user.id, total })
+        .select("id").single();
+
+      if(inv.error){ err(msg,inv.error.message); return; }
+
+      const invoice_id = inv.data.id;
+
+      const itemsPayload = items.map(i=>({
         user_id: session.user.id,
-        total: total
-      };
-
-      const invRes = await sb.from("invoices").insert(invoicePayload).select("id").single();
-      if(invRes.error){
-        setMsg("فشل إنشاء الفاتورة: " + invRes.error.message, false);
-        return;
-      }
-      const invoiceId = invRes.data.id;
-
-      // 2) Create invoice items
-      const itemsPayload = items.map(it => ({
-        user_id: session.user.id,
-        invoice_id: invoiceId,
-        product_id: it.product_id,
-        code: it.code,
-        name: it.name,
-        price: Number(it.price),
-        qty: Number(it.qty),
-        line_total: Number(it.price) * Number(it.qty)
+        invoice_id,
+        product_id:i.product_id,
+        code:i.code,
+        name:i.name,
+        price:i.price,
+        qty:i.qty,
+        line_total:i.price*i.qty
       }));
 
-      const itemsRes = await sb.from("invoice_items").insert(itemsPayload);
-      if(itemsRes.error){
-        setMsg("فشل حفظ بنود الفاتورة: " + itemsRes.error.message, false);
-        return;
-      }
+      const itRes = await sb.from("invoice_items").insert(itemsPayload);
+      if(itRes.error){ err(msg,itRes.error.message); return; }
 
-      // 3) Deduct stock (one-by-one to keep it simple)
-      for(const it of items){
-        // get current stock to be safe
-        const pRes = await sb.from("products").select("id,stock").eq("id", it.product_id).single();
-        if(pRes.error){
-          setMsg("فشل قراءة المخزون: " + pRes.error.message, false);
-          return;
-        }
-        const current = Number(pRes.data.stock || 0);
-        const next = current - Number(it.qty);
-        if(next < 0){
-          setMsg(`المخزون خلص للمنتج ${it.code}.`, false);
-          return;
-        }
-
-        const uRes = await sb.from("products")
-          .update({ user_id: session.user.id, stock: next })
-          .eq("id", it.product_id);
-
-        if(uRes.error){
-          setMsg("فشل خصم المخزون: " + uRes.error.message, false);
-          return;
-        }
+      for(const i of items){
+        const p = await sb.from("products").select("stock").eq("id",i.product_id).single();
+        if(p.error){ err(msg,p.error.message); return; }
+        const newStock = p.data.stock - i.qty;
+        const u = await sb.from("products").update({ stock:newStock }).eq("id",i.product_id);
+        if(u.error){ err(msg,u.error.message); return; }
       }
 
       cart.clear();
       renderCart();
-      setMsg("✅ تم التأكيد وإنشاء الفاتورة وخصم المخزون!");
-      setFound("");
-      lastFoundProduct = null;
-      codeEl.value = "";
-      qtyEl.value = 1;
+      ok(msg,"✅ تم التأكيد وخصم المخزون");
     }
 
-    document.getElementById("findBtn").addEventListener("click", findProduct);
-    document.getElementById("addBtn").addEventListener("click", addToCart);
-    document.getElementById("clearBtn").addEventListener("click", ()=>{
-      cart.clear();
-      renderCart();
-      setMsg("تم تفريغ السلة.");
-    });
-    document.getElementById("confirmBtn").addEventListener("click", confirm);
+    document.getElementById("findBtn").onclick = findProduct;
+    document.getElementById("addBtn").onclick = addToCart;
+    document.getElementById("confirmBtn").onclick = confirm;
+    document.getElementById("clearBtn").onclick = ()=>{ cart.clear(); renderCart(); };
+    document.getElementById("logoutBtn").onclick = async ()=>{ await sb.auth.signOut(); location.href="./login.html"; };
 
-    document.getElementById("logoutBtn").addEventListener("click", async ()=>{
-      await sb.auth.signOut();
-      location.href = "./login.html";
-    });
-
-    // init
-    (async ()=>{
-      await requireAuth();
-      renderCart();
-    })();
+    requireAuth();
   </script>
 </body>
-</html>
+</html> 
